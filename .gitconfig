@@ -1,0 +1,43 @@
+[user]
+	email = mikymod@gmail.com
+	name = Michele Rossi
+
+[core]
+	editor = code --wait
+	longpaths = true
+	sshCommand = ssh
+
+[filter "lfs"]
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+
+[alias]
+	co = checkout
+	st = status
+	sts = status -s
+	rh = reset HEAD
+	rhh = reset --hard HEAD
+	pu = pull
+	up = push
+
+	cam = commit -am
+	dc = diff --cached
+
+	# View abbreviated SHA, description, and history graph of the latest 20 commits
+	l = log --pretty=oneline -n 20 --graph --abbrev-commit
+
+	# lg = log --color --decorate --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an (%G?)>%Creset' --abbrev-commit
+	lg = log --color --decorate --graph --pretty=format:'%C(always,yellow)%h%C(always,reset) %C(always,green)%ar%C(always,reset) %C(always,bold blue)%an%C(always,reset)%C(always,red)%d%C(always,reset) %s' 
+
+[push]
+	default = current
+
+[pull]
+	rebase = true
+
+[init]
+	defaultBranch = main
+[credential "https://osgit.overside.it"]
+	provider = generic
