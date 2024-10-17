@@ -7,7 +7,6 @@ function gfe { git fetch }
 function gre { git rebase }
 function glr { git l -30 }
 function glg { git lg }
-function com { git commit }
 function hs  { git rev-parse --short HEAD }
 function hm  { git log --format=%B -n 1 HEAD }
 function up  { git push }
