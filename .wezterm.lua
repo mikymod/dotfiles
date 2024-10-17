@@ -9,14 +9,9 @@ local haswork, work = pcall(require, "work")
 --- Setup PowerShell options
 if wezterm.target_triple == "x86_64-pc-windows-msvc" then
     --- Grab the ver info for later use.
-    local success, stdout, stderr = wezterm.run_child_process({ "cmd.exe", "ver" })
-    local major, minor, build, rev = stdout:match("Version ([0-9]+)%.([0-9]+)%.([0-9]+)%.([0-9]+)")
-    local is_windows_11 = tonumber(build) >= 22000
-
-    --- Make it look cool.
-    if is_windows_11 then
-        wezterm.log_info("We're running Windows 11!")
-    end
+    -- local success, stdout, stderr = wezterm.run_child_process({ "cmd.exe", "ver" })
+    -- local major, minor, build, rev = stdout:match("Version ([0-9]+)%.([0-9]+)%.([0-9]+)%.([0-9]+)")
+    -- local is_windows_11 = tonumber(build) >= 22000
 
     --- Set Pwsh as the default on Windows
     config.default_prog = { "pwsh.exe", "-NoLogo" }
@@ -68,8 +63,8 @@ local keys = {
     { key = "3",        mods = "ALT",            action = act.ActivateTab(2) },
     { key = "4",        mods = "ALT",            action = act.ActivateTab(3) },
     { key = "5",        mods = "ALT",            action = act.ActivateTab(4) },
-    { key = '%',        mods = "ALT|CTRL",       action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
-    { key = '%',        mods = "SHIFT|ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    -- { key = '%',        mods = "ALT|CTRL",       action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+    -- { key = '%',        mods = "SHIFT|ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 
     -- split
     { key = "%",        mods = "ALT|CTRL",       action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
@@ -78,7 +73,8 @@ local keys = {
     { key = '^',        mods = "SHIFT|ALT|CTRL", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) }, -- FIXME: doesn't work
 
     -- font size
-    { key = "+",        mods = "CTRL",           action = act.IncreaseFontSize },
+    { key = "+",        mods = "SHIFT|CTRL",     action = act.IncreaseFontSize },
+    { key = "=",        mods = "CTRL",           action = act.IncreaseFontSize },
     { key = "-",        mods = "CTRL",           action = act.DecreaseFontSize },
     { key = "0",        mods = "CTRL",           action = act.ResetFontSize },
 
@@ -107,7 +103,7 @@ local keys = {
     },
 
     -- Search
-    { key = "F",          mods = "CTRL",       action = act.Search("CurrentSelectionOrEmptyString") },
+    { key = "f",          mods = "CTRL",       action = act.Search("CurrentSelectionOrEmptyString") },
     { key = "F",          mods = "SHIFT|CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
     { key = "f",          mods = "SHIFT|CTRL", action = act.Search("CurrentSelectionOrEmptyString") },
 
