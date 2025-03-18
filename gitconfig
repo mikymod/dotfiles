@@ -26,10 +26,11 @@
 	dc = diff --cached
 
 	# View abbreviated SHA, description, and history graph of the latest 20 commits
-	l = log --pretty=oneline -n 20 --graph --abbrev-commit
-
-	# lg = log --color --decorate --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an (%G?)>%Creset' --abbrev-commit
-	lg = log --color --decorate --graph --pretty=format:'%C(always,yellow)%h%C(always,reset) %C(always,green)%ar%C(always,reset) %C(always,bold blue)%an%C(always,reset)%C(always,red)%d%C(always,reset) %s' 
+    l = "!. ~/.githelpers && pretty_git_log"
+    la = "!git l --all"
+    lr = "!git l -30"
+    lra = "!git lr --all"
+    lg = "!git l -G $1 -- $2"
 
 [push]
 	default = current
@@ -39,5 +40,3 @@
 
 [init]
 	defaultBranch = main
-[credential "https://osgit.overside.it"]
-	provider = generic
