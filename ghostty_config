@@ -6,7 +6,7 @@ window-inherit-font-size = false
 font-family = FiraCode Nerd Font
 font-size = 18
 
-theme = GruvboxDarkHard
+theme = Monokai Remastered
 cursor-color = #928374
 background = #1d2021
 
