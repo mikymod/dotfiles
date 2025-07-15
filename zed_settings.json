@@ -6,7 +6,7 @@
   "theme": {
     "mode": "system",
     "light": "One Light",
-    "dark": "One Dark Pro Monokai Darker"
+    "dark": "Gruvbox Dark Hard"
   },
   "ui_font_family": "FiraCode Nerd Font",
   "buffer_font_family": "FiraCode Nerd Font",

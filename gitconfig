@@ -3,9 +3,7 @@
 	name = Michele Rossi
 
 [core]
-	editor = code --wait
 	longpaths = true
-	sshCommand = ssh
 
 [filter "lfs"]
 	process = git-lfs filter-process
@@ -34,9 +32,6 @@
 
 [push]
 	default = current
-
-[pull]
-	rebase = true
 
 [init]
 	defaultBranch = main
