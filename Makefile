@@ -8,6 +8,13 @@ zsh: $(HOME)/.zshrc
 
 git: $(HOME)/.gitconfig $(HOME)/.githelpers
 
+$(HOME)/bin/tmux-sessionizer:
+	mkdir -p $(HOME)/bin
+	ln -sf $(DOTFILE_PATH)/bin/tmux-sessionizer $(HOME)/bin/tmux-sessionizer
+	chmod +x $(HOME)/bin/tmux-sessionizer
+
+tmux: $(HOME)/.tmux.conf $(HOME)/bin/tmux-sessionizer
+
 $(HOME)/.config/ghostty/config:
 	mkdir -p $(HOME)/.config/ghostty
 	ln -sf $(DOTFILE_PATH)/ghostty_config $(HOME)/.config/ghostty/config
@@ -26,4 +33,4 @@ $(HOME)/.config/zed/settings.json:
 
 zed: $(HOME)/.config/zed/settings.json
 
-all: zsh git ghostty nvim zed
+all: zsh git tmux ghostty nvim zed
