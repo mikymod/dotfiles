@@ -181,11 +181,6 @@ vim.g.maplocalleader = " "
 -- NvimTree (File Explorer)
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = "Toggle file explorer" })
 
--- VSCode-like keybindings
-vim.keymap.set('n', '<C-s>', ':w<CR>', { desc = "Save file" })
-vim.keymap.set('i', '<C-s>', '<Esc>:w<CR>a', { desc = "Save file" })
-vim.keymap.set('v', 'p', '"_dP', { desc = "Paste without yanking" })
-
 -- Buffer management
 vim.keymap.set('n', '<S-l>', ':bnext<CR>', { desc = "Next buffer" })
 vim.keymap.set('n', '<S-h>', ':bprevious<CR>', { desc = "Previous buffer" })
