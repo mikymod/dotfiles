@@ -154,19 +154,6 @@ require("lazy").setup({
             })
         end
     },
-
-    -- =========================================================================
-    -- Tmux Integration
-    -- =========================================================================
-    {
-        "christoomey/vim-tmux-navigator",
-        lazy = false,
-        config = function()
-            -- No config needed, works out of the box with default keymaps
-            -- C-h, C-j, C-k, C-l to navigate between vim and tmux panes
-        end
-    },
-
 })
 
 -- =============================================================================
@@ -177,6 +164,8 @@ require("lazy").setup({
 -- Set leader key to space
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- NvimTree (File Explorer)
 vim.keymap.set('n', '<leader>e', ':NvimTreeToggle<CR>', { desc = "Toggle file explorer" })
