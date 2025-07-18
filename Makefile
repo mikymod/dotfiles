@@ -4,7 +4,9 @@ DOTFILE_PATH := $(shell pwd)
 $(HOME)/.%: %
 	ln -sf $(DOTFILE_PATH)/$^ $@
 
-bash: $(HOME)/.bashrc
+bash: $(HOME)/.bashrc $(HOME)/.bash_profile
+
+zsh: $(HOME)/.zshrc
 
 git: $(HOME)/.gitconfig $(HOME)/.githelpers
 
@@ -33,4 +35,6 @@ $(HOME)/.config/zed/settings.json:
 
 zed: $(HOME)/.config/zed/settings.json
 
-all: bash git tmux ghostty nvim zed
+linux: bash git tmux ghostty nvim zed
+
+macos: zsh git tmux ghostty nvim zed 
