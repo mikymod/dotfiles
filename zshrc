@@ -18,7 +18,7 @@ setopt HIST_SAVE_NO_DUPS      # Dont write duplicate entries in the history file
 setopt SHARE_HISTORY          # Share history between all sessions.
 unsetopt HIST_VERIFY          # Execute commands using history (e.g.: using !$) immediately
 
-# GIT
+# Git 
 alias gst='git status'
 alias gaa='git add -A'
 alias gc='git commit'
@@ -36,6 +36,11 @@ alias lr='git l -30'
 alias cdr='cd $(git rev-parse --show-toplevel)' # cd to git Root
 alias hs='git rev-parse --short HEAD'
 alias hm='git log --format=%B -n 1 HEAD'
+
+# tmux
+alias tma='tmux attach -t'
+alias tmn='tmux new -s'
+alias tmd='tmux detach'
 
 beautiful() {
   while
