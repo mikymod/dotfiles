@@ -4,6 +4,7 @@
 
 [core]
 	longpaths = true
+    editor = nvim
 
 [filter "lfs"]
 	process = git-lfs filter-process
