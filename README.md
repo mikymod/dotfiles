@@ -64,6 +64,11 @@ make all
 | **LSP (Normal)** | `gS` | [G]oto Workspace [S]ymbols | `telescope.builtin.lsp_dynamic_workspace_symbols`|
 | **LSP (Normal)** | `gy` | [G]oto T[y]pe Definition | `telescope.builtin.lsp_type_definitions` |
 | **LSP (Normal)** | `<leader> th` | [T]oggle Inlay [H]ints | `vim.lsp.inlay_hint.enable()` |
+| **DAP (Normal)** | `<leader> db` | [D]ebug [B]reakpoint | `dap.toggle_breakpoint()` |
+| **DAP (Normal)** | `<leader> dc` | [D]ebug [C]ontinue | `dap.continue()` |
+| **DAP (Normal)** | `<leader> dC` | [D]ebug Run to [C]ursor | `dap.run_to_cursor()` |
+| **DAP (Normal)** | `<leader> dT` | [D]ebug [T]erminate | `dap.terminate()` |
+| **DAP (Normal)** | `<leader> du` | [D]ebug [U]I | `dapui.toggle()` |
 | **Mini Around/Inside** | `va)` | [V]isually select [A]round [)]paren |  |
 | **Mini Around/Inside** | `yinq` | [Y]ank [I]nside [N]ext [Q]uote |  |
 | **Mini Around/Inside** | `ci'` | [C]hange [I]nside [']quote |  |
