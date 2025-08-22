@@ -6,7 +6,7 @@ window-inherit-font-size = false
 font-family = FiraCode Nerd Font
 font-size = 18
 
-theme = Monokai Remastered
+theme = GruvboxDarkHard
 cursor-color = #928374
 background = #1d2021
 
@@ -14,3 +14,6 @@ keybind = ctrl+h=goto_split:left
 keybind = ctrl+j=goto_split:bottom
 keybind = ctrl+k=goto_split:top
 keybind = ctrl+l=goto_split:right
+
+keybind = ctrl+a>shift+five=new_split:right
+keybind = ctrl+a>shift+apostrophe=new_split:down
