@@ -16,7 +16,7 @@
 	co = checkout
 	st = status
 	sts = status -s
-	rh = reset HEAD
+	rh = reset HEAD         # Equivalent to `git restore --staged`
 	rhh = reset --hard HEAD
 	pu = pull
 	up = push
@@ -29,6 +29,9 @@
     la = "!git l --all"
     lr = "!git l -30"
     lra = "!git lr --all"
+
+    # This searches the commit messages for a pattern, not the actual code changes within the files.
+    # You use this to find commits based on what the author wrote in the commit description.
     lg = "!git l -G $1 -- $2"
 
 [push]
