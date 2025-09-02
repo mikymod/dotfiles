@@ -18,8 +18,11 @@ ghostty: $(HOME)/.config/ghostty/config
 
 $(HOME)/.config/nvim/init.lua:
 	mkdir -p $(HOME)/.config/nvim
-	ln -sf $(DOTFILE_PATH)/nvim_config.lua $(HOME)/.config/nvim/init.lua
+	ln -sf $(DOTFILE_PATH)/nvim/init.lua $(HOME)/.config/nvim/init.lua
 
-nvim: $(HOME)/.config/nvim/init.lua
+$(HOME)/.config/nvim/lua:
+	ln -sf $(DOTFILE_PATH)/nvim/lua $(HOME)/.config/nvim/lua
+
+nvim: $(HOME)/.config/nvim/init.lua $(HOME)/.config/nvim/lua
 
 all: zsh bash git ghostty nvim
