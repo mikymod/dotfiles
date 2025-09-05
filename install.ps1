@@ -2,9 +2,14 @@ cp gitconfig $home/.gitconfig
 cp githelpers $home/.githelpers
 cp wezterm.lua $home/.wezterm.lua
 
-rm -r $env:LOCALAPPDATA/nvim/lua/config
+if (Test-Path -Path $env:LOCALAPPDATA/nvim/lua/config) {
+  rm -r $env:LOCALAPPDATA/nvim/lua/config
+}
 mkdir $env:LOCALAPPDATA/nvim/lua/config
-rm -r $env:LOCALAPPDATA/nvim/lua/plugins
+
+if (Test-Path -Path $env:LOCALAPPDATA/nvim/lua/plugins) {
+  rm -r $env:LOCALAPPDATA/nvim/lua/plugins
+}
 mkdir $env:LOCALAPPDATA/nvim/lua/plugins
 
 cp nvim/init.lua $env:LOCALAPPDATA/nvim/init.lua
