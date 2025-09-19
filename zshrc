@@ -37,11 +37,6 @@ alias cdr='cd $(git rev-parse --show-toplevel)' # cd to git Root
 alias hs='git rev-parse --short HEAD'
 alias hm='git log --format=%B -n 1 HEAD'
 
-# tmux
-alias tma='tmux attach -t'
-alias tmn='tmux new -s'
-alias tmd='tmux detach'
-
 beautiful() {
   while
   do
@@ -61,19 +56,3 @@ spinner() {
 }
 
 export XDG_CONFIG_HOME=$HOME/.config
-
-# Flutter
-export PATH="$PATH:$HOME/dev/tools/flutter/bin/"
-export PATH="$PATH":"$HOME/.pub-cache/bin"
-export PATH="$XDG_CONFIG_HOME/.gem/bin:$PATH"
-
-# Node
-export NVM_DIR="/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
-. "$HOME/.local/bin/env"
-
-export PATH="$HOME/.local/bin:$PATH"
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH="$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools"
