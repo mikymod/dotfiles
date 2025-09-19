@@ -16,6 +16,11 @@ $(HOME)/.config/ghostty/config:
 
 ghostty: $(HOME)/.config/ghostty/config
 
+$(HOME)/.config/wezterm.lua:
+	ln -sf $(DOTFILE_PATH)/wezterm.lua $(HOME)/.config/wezterm.lua
+
+wezterm: $(HOME)/.config/wezterm.lua
+
 $(HOME)/.config/nvim/init.lua:
 	mkdir -p $(HOME)/.config/nvim
 	ln -sf $(DOTFILE_PATH)/nvim/init.lua $(HOME)/.config/nvim/init.lua
@@ -25,4 +30,4 @@ $(HOME)/.config/nvim/lua:
 
 nvim: $(HOME)/.config/nvim/init.lua $(HOME)/.config/nvim/lua
 
-all: zsh bash git ghostty nvim
+all: zsh bash git ghostty wezterm nvim
