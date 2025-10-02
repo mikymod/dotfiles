@@ -10,16 +10,13 @@ zsh: $(HOME)/.zshrc
 
 git: $(HOME)/.gitconfig $(HOME)/.githelpers
 
+wezterm: $(HOME)/.wezterm.lua
+
 $(HOME)/.config/ghostty/config:
 	mkdir -p $(HOME)/.config/ghostty
 	ln -sf $(DOTFILE_PATH)/ghostty_config $(HOME)/.config/ghostty/config
 
 ghostty: $(HOME)/.config/ghostty/config
-
-$(HOME)/.config/wezterm.lua:
-	ln -sf $(DOTFILE_PATH)/wezterm.lua $(HOME)/.config/wezterm.lua
-
-wezterm: $(HOME)/.config/wezterm.lua
 
 $(HOME)/.config/nvim/init.lua:
 	mkdir -p $(HOME)/.config/nvim

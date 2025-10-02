@@ -34,8 +34,8 @@ keybind = ctrl+a>j=goto_split:bottom
 keybind = ctrl+a>k=goto_split:top
 keybind = ctrl+a>l=goto_split:right
 
-keybind = ctrl+a>shift+five=new_split:right
-keybind = ctrl+a>shift+apostrophe=new_split:down
+keybind = ctrl+a>shift+\=new_split:right
+keybind = ctrl+a>shift+-=new_split:down
 
 keybind = ctrl+a>t=new_tab
 keybind = ctrl+a>shift+t=close_tab

@@ -33,8 +33,8 @@ local keys = {
 	{ key = "5", mods = "ALT", action = act.ActivateTab(4) },
 
 	-- panel
-	{ key = "%", mods = "LEADER|SHIFT", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
-	{ key = '"', mods = "LEADER|SHIFT", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
+	{ key = "|", mods = "LEADER|SHIFT", action = act.SplitHorizontal({ domain = "CurrentPaneDomain" }) },
+	{ key = "_", mods = "LEADER|SHIFT", action = act.SplitVertical({ domain = "CurrentPaneDomain" }) },
 	{ key = "h", mods = "LEADER", action = act({ ActivatePaneDirection = "Left" }) },
 	{ key = "j", mods = "LEADER", action = act({ ActivatePaneDirection = "Down" }) },
 	{ key = "k", mods = "LEADER", action = act({ ActivatePaneDirection = "Up" }) },
@@ -176,7 +176,7 @@ config.hide_tab_bar_if_only_one_tab = true
 --config.color_scheme = "GruvboxDarkHard"
 config.font = wezterm.font("FiraCode Nerd Font")
 
-config.font_size = 11
+config.font_size = 16
 config.launch_menu = launch_menu
 config.default_cursor_style = "BlinkingBar"
 config.disable_default_key_bindings = true
