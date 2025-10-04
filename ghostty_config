@@ -4,7 +4,7 @@ macos-option-as-alt = true
 window-inherit-font-size = false
 
 font-family = FiraCode Nerd Font
-font-size = 18
+font-size = 14
 
 background = #282828
 foreground = #ebdbb2
