@@ -1,0 +1,73 @@
+{
+  "minimap": {
+    "show": "never"
+  },
+  "base_keymap": "VSCode",
+  "ui_font_family": ".ZedMono",
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "wrap_guides": [80],
+  "relative_line_numbers": true,
+  "theme": "Gruvbox Dark Hard",
+  "scrollbar": {
+    "show": "never"
+  },
+  "toolbar": {
+    "breadcrumbs": false,
+    "quick_actions": false
+  },
+  "buffer_line_height": {
+    "custom": 1.5
+  },
+  "terminal": {
+    "dock": "bottom",
+    "font_size": 15,
+    "line_height": {
+      "custom": 1.25
+    },
+    "env": {
+      "GIT_EDITOR": "zed --wait"
+    }
+  },
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
+  "indent_guides": { "enabled": false },
+  "inlay_hints": {
+    "enabled": true
+  },
+  "agent": {
+    "default_model": {
+      "provider": "zed.dev",
+      "model": "claude-3-5-sonnet-latest"
+    }
+  },
+  "soft_wrap": "none",
+  "cursor_blink": false,
+  "current_line_highlight": "none",
+  "languages": {
+    "Markdown": {
+      "completions": {
+        "words": "disabled"
+      },
+      "show_edit_predictions": false,
+      "preferred_line_length": 80,
+      "format_on_save": "off"
+    },
+    "SQL": {
+      "formatter": "prettier"
+    },
+    "JSON": {
+      "prettier": {
+        "allowed": true,
+        "parser": "json"
+      }
+    },
+    "JavaScript": {
+      "code_actions_on_format": {
+        "source.fixAll.eslint": true
+      }
+    }
+  }
+}
