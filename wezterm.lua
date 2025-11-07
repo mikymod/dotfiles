@@ -176,7 +176,7 @@ config.hide_tab_bar_if_only_one_tab = true
 --config.color_scheme = "GruvboxDarkHard"
 config.font = wezterm.font("FiraCode Nerd Font")
 
-config.font_size = 16
+config.font_size = 14
 config.launch_menu = launch_menu
 config.default_cursor_style = "BlinkingBar"
 config.disable_default_key_bindings = true
