@@ -1,8 +1,0 @@
-[
-  {
-    "context": "Editor || Workspace",
-    "bindings": {
-      "ctrl-shift-e": "workspace::ToggleLeftDock"
-    }
-  }
-]

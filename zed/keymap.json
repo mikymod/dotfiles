@@ -1,0 +1,76 @@
+[
+  {
+    "context": "Editor || Workspace",
+    "bindings": {
+      "ctrl-e": "workspace::ToggleLeftDock"
+    }
+  },
+  {
+    "context": "Workspace",
+    "bindings": {
+      "ctrl-`": "workspace::ToggleBottomDock"
+    }
+  },
+  {
+    "context": "Editor && VimControl && !VimWaiting && !menu",
+    "bindings": {
+      "ctrl-w z": "workspace::ToggleZoom",
+      "ctrl-w t": "terminal_panel::ToggleFocus",
+      "ctrl-w s v": "workspace::NewFileSplitVertical",
+      "ctrl-w s h": "workspace::NewFileSplitHorizontal",
+      "ctrl-w q": "workspace::CloseWindow",
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown",
+      "g ]": "editor::GoToDiagnostic",
+      "g [": "editor::GoToPreviousDiagnostic",
+      "g shift-r": "editor::FindAllReferences",
+      "g a": "editor::ToggleCodeActions",
+      "g r": "editor::Rename",
+      "[ x": "editor::SelectLargerSyntaxNode",
+      "] x": "editor::SelectSmallerSyntaxNode",
+      "shift-k": "editor::Hover",
+      // "space w": "workspace::Save",
+      // "j": [
+      //   "vim::Down",
+      //   {
+      //     "displayLines": true
+      //   }
+      // ],
+      // "k": [
+      //   "vim::Up",
+      //   {
+      //     "displayLines": true
+      //   }
+      // ],
+      ", g b": "git::Blame",
+      "-": "pane::RevealInProjectPanel",
+      "ctrl-d": ["editor::SelectNext", { "replace_newest": false }]
+    }
+  },
+  {
+    "context": "EmptyPane || SharedScreen || vim_mode == normal",
+    "bindings": {
+      ", f o": "projects::OpenRecent",
+      ", r t": ["editor::SpawnNearestTask", { "reveal": "no_focus" }],
+      ", r l": "task::Rerun",
+      ", r e": [
+        "task::Rerun",
+        {
+          "reevaluate_context": true
+        }
+      ],
+      "ctrl-s": "projects::OpenRecent"
+    }
+  },
+  {
+    "context": "Dock",
+    "bindings": {
+      "ctrl-h": "workspace::ActivatePaneLeft",
+      "ctrl-l": "workspace::ActivatePaneRight",
+      "ctrl-k": "workspace::ActivatePaneUp",
+      "ctrl-j": "workspace::ActivatePaneDown"
+    }
+  }
+]
