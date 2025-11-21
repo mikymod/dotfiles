@@ -27,4 +27,13 @@ $(HOME)/.config/nvim/lua:
 
 nvim: $(HOME)/.config/nvim/init.lua $(HOME)/.config/nvim/lua
 
-all: zsh bash git ghostty wezterm nvim
+$(HOME)/.config/zed/settings.json:
+	mkdir -p $(HOME)/.config/zed
+	ln -sf $(DOTFILE_PATH)/zed/settings.json $(HOME)/.config/zed/settings.json
+
+$(HOME)/.config/zed/keymap.json:
+	ln -sf $(DOTFILE_PATH)/zed/keymap.json $(HOME)/.config/zed/keymap.json
+
+zed: $(HOME)/.config/zed/settings.json $(HOME)/.config/zed/keymap.json
+
+all: zsh bash git ghostty wezterm nvim zed
