@@ -56,3 +56,9 @@ spinner() {
 }
 
 export XDG_CONFIG_HOME=$HOME/.config
+
+## [Completion]
+## Completion scripts setup. Remove the following line to uninstall
+[[ -f /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh || true
+## [/Completion]
+
