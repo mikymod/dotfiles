@@ -36,4 +36,14 @@ $(HOME)/.config/zed/keymap.json:
 
 zed: $(HOME)/.config/zed/settings.json $(HOME)/.config/zed/keymap.json
 
-all: zsh bash git ghostty wezterm nvim zed
+$(HOME)/.config/hypr:
+	mkdir -p $(HOME)/.config
+	ln -sf $(DOTFILE_PATH)/hypr $(HOME)/.config/hypr
+
+$(HOME)/.config/waybar:
+	mkdir -p $(HOME)/.config
+	ln -sf $(DOTFILE_PATH)/hypr/waybar $(HOME)/.config/waybar
+
+hypr: $(HOME)/.config/hypr $(HOME)/.config/waybar
+
+all: zsh bash git ghostty wezterm nvim zed hypr
