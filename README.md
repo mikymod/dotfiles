@@ -19,6 +19,10 @@ make all
 ./install.ps1
 ```
 
+## Local Configuration
+
+For machine-specific or private configuration (e.g., work-related PATH exports), create `~/.bashrc.local`. This file is sourced by `bashrc` if it exists but is not tracked in git.
+
 ## NeoVim Bindings
 
 | Context / Mode | Keys | Description | Command |
