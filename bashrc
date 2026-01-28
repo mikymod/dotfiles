@@ -1,15 +1,15 @@
-## Helper function to avoid adding duplicate paths
-#add_to_path() {
-#    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-#        export PATH="$1:$PATH"
-#    fi
-#}
-#
-#add_to_path_suffix() {
-#    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
-#        export PATH="$PATH:$1"
-#    fi
-#}
+# Helper functions to avoid adding duplicate paths
+add_to_path() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+
+add_to_path_suffix() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$PATH:$1"
+    fi
+}
 
 # Set history file, size, and format
 export HISTFILE=$HOME/.bash_history
