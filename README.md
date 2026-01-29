@@ -25,60 +25,184 @@ For machine-specific or private configuration (e.g., work-related PATH exports),
 
 ## NeoVim Bindings
 
-| Context / Mode | Keys | Description | Command |
-| :--- | :--- | :--- | :--- |
-| **Global** | `<Space>` | Leader key | `vim.g.mapleader` |
-| **Normal** | `<Esc>` | Clear search highlight | `<cmd>nohlsearch<CR>` |
-| **Normal** | `<C-h>` | Move focus to the left window | `<C-w><C-h>` |
-| **Normal** | `<C-l>` | Move focus to the right window | `<C-w><C-l>` |
-| **Normal** | `<C-j>` | Move focus to the lower window | `<C-w><C-j>` |
-| **Normal** | `<C-k>` | Move focus to the upper window | `<C-w><C-k>` |
-| **Normal** | `<S-l>` | Next buffer | `:bnext<CR>` |
-| **Normal** | `<S-h>` | Previous buffer | `:bprevious<CR>` |
-| **Terminal** | `<Esc><Esc>` | Exit terminal mode | `<C-\><C-n>` |
-| **Normal, Visual** | `<C-d>` | Find Under / Find Subword Under (Multi-Cursor) | `VM_maps["Find Under"]` |
-| **Normal, Visual** | `<leader> /` | Toggle comment | `require("Comment.api").toggle.linewise()` |
-| **Normal** | `<leader> f` | [F]ormat buffer | `require("conform").format()` |
-| **Normal** | `<leader> q` | Open diagnostic [Q]uickfix list | `vim.diagnostic.setloclist` |
-| **Normal** | `<leader> e` | Toggle file explorer | `:NvimTreeToggle<CR>` |
-| **Normal** | `<leader> bd` | Close buffer | `:bdelete<CR>` |
-| **Normal** | `<leader> wv` | Vertical split | `:vsplit<CR>` |
-| **Normal** | `<leader> wh` | Horizontal split | `:split<CR>` |
-| **Normal** | `<leader> wc` | Close window | `<C-w>c` |
-| **Telescope (Normal)**| `<leader> sh` | [S]earch [H]elp | `telescope.builtin.help_tags` |
-| **Telescope (Normal)**| `<leader> sk` | [S]earch [K]eymaps | `telescope.builtin.keymaps` |
-| **Telescope (Normal)**| `<leader> sf` | [S]earch [F]iles | `telescope.builtin.find_files` |
-| **Telescope (Normal)**| `<leader> ss` | [S]earch [S]elect Telescope | `telescope.builtin.builtin` |
-| **Telescope (Normal)**| `<leader> sw` | [S]earch current [W]ord | `telescope.builtin.grep_string` |
-| **Telescope (Normal)**| `<leader> sg` | [S]earch by [G]rep | `telescope.builtin.live_grep` |
-| **Telescope (Normal)**| `<leader> sd` | [S]earch [D]iagnostics | `telescope.builtin.diagnostics` |
-| **Telescope (Normal)**| `<leader> sr` | [S]earch [R]esume | `telescope.builtin.resume` |
-| **Telescope (Normal)**| `<leader> s.` | [S]earch Recent Files | `telescope.builtin.oldfiles` |
-| **Telescope (Normal)**| `<leader> <leader>`| Find existing buffers | `telescope.builtin.buffers` |
-| **Telescope (Normal)**| `<leader> /` | Fuzzily search in current buffer | `telescope.builtin.current_buffer_fuzzy_find`|
-| **Telescope (Normal)**| `<leader> s/` | [S]earch [/] in Open Files | `telescope.builtin.live_grep` |
-| **Telescope (Normal)**| `<leader> sn` | [S]earch [N]eovim files | `telescope.builtin.find_files` |
-| **LSP (Normal)** | `cd` | [C]hange [D]efinition (Rename) | `vim.lsp.buf.rename` |
-| **LSP (Normal, Visual)**| `ga` | [G]oto Code [A]ction | `vim.lsp.buf.code_action` |
-| **LSP (Normal)** | `gr` | [G]oto [R]eferences | `telescope.builtin.lsp_references` |
-| **LSP (Normal)** | `gi` | [G]oto [I]mplementation | `telescope.builtin.lsp_implementations` |
-| **LSP (Normal)** | `gd` | [G]oto [D]efinition | `telescope.builtin.lsp_definitions` |
-| **LSP (Normal)** | `gD` | [G]oto [D]eclaration | `vim.lsp.buf.declaration` |
-| **LSP (Normal)** | `gs` | [G]oto Document [S]ymbols | `telescope.builtin.lsp_document_symbols` |
-| **LSP (Normal)** | `gS` | [G]oto Workspace [S]ymbols | `telescope.builtin.lsp_dynamic_workspace_symbols`|
-| **LSP (Normal)** | `gy` | [G]oto T[y]pe Definition | `telescope.builtin.lsp_type_definitions` |
-| **LSP (Normal)** | `<leader> th` | [T]oggle Inlay [H]ints | `vim.lsp.inlay_hint.enable()` |
-| **DAP (Normal)** | `<leader> db` | [D]ebug [B]reakpoint | `dap.toggle_breakpoint()` |
-| **DAP (Normal)** | `<leader> dc` | [D]ebug [C]ontinue | `dap.continue()` |
-| **DAP (Normal)** | `<leader> dC` | [D]ebug Run to [C]ursor | `dap.run_to_cursor()` |
-| **DAP (Normal)** | `<leader> dT` | [D]ebug [T]erminate | `dap.terminate()` |
-| **DAP (Normal)** | `<leader> du` | [D]ebug [U]I | `dapui.toggle()` |
-| **Mini Around/Inside** | `va)` | [V]isually select [A]round [)]paren |  |
-| **Mini Around/Inside** | `yinq` | [Y]ank [I]nside [N]ext [Q]uote |  |
-| **Mini Around/Inside** | `ci'` | [C]hange [I]nside [']quote |  |
-| **Mini Surroundings** | `saiw)` | [S]urround [A]dd [I]nner [W]ord [)]Paren |  |
-| **Mini Surroundings** | `sd'` | [S]urround [D]elete [']quotes |  |
-| **Mini Surroundings** | `sr)'` | [S]urround [R]eplace [)] ['] |  |
+> Leader key: `<Space>`
+
+### Vim Motions (Built-in)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `h` `j` `k` `l` | Move left/down/up/right |
+| Normal | `w` `W` | Move to next word/WORD |
+| Normal | `b` `B` | Move to previous word/WORD |
+| Normal | `e` `E` | Move to end of word/WORD |
+| Normal | `0` `^` `$` | Move to start/first char/end of line |
+| Normal | `gg` `G` | Go to first/last line |
+| Normal | `{` `}` | Move by paragraph |
+| Normal | `%` | Jump to matching bracket |
+| Normal | `f{char}` `F{char}` | Find char forward/backward |
+| Normal | `t{char}` `T{char}` | Till char forward/backward |
+| Normal | `;` `,` | Repeat f/t motion forward/backward |
+| Normal | `*` `#` | Search word under cursor forward/backward |
+| Normal | `n` `N` | Next/previous search result |
+| Normal | `Ctrl-d` `Ctrl-u` | Scroll half page down/up |
+| Normal | `Ctrl-f` `Ctrl-b` | Scroll full page down/up |
+| Normal | `zz` `zt` `zb` | Center/top/bottom cursor line |
+
+### Vim Operators (Built-in)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `d{motion}` | Delete |
+| Normal | `c{motion}` | Change (delete + insert) |
+| Normal | `y{motion}` | Yank (copy) |
+| Normal | `>` `<` | Indent/unindent |
+| Normal | `dd` `cc` `yy` | Delete/change/yank line |
+| Normal | `D` `C` | Delete/change to end of line |
+| Normal | `x` `X` | Delete char under/before cursor |
+| Normal | `p` `P` | Paste after/before cursor |
+| Normal | `u` `Ctrl-r` | Undo/redo |
+| Normal | `.` | Repeat last change |
+| Normal | `r{char}` | Replace single char |
+| Normal | `~` | Toggle case |
+| Normal | `J` | Join lines |
+| Insert | `i` `I` | Insert at cursor/start of line |
+| Insert | `a` `A` | Append after cursor/end of line |
+| Insert | `o` `O` | Open line below/above |
+| Visual | `v` `V` `Ctrl-v` | Visual/line/block mode |
+
+### Text Objects (Built-in + mini.ai)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Operator | `iw` `aw` | Inner/around word |
+| Operator | `iW` `aW` | Inner/around WORD |
+| Operator | `is` `as` | Inner/around sentence |
+| Operator | `ip` `ap` | Inner/around paragraph |
+| Operator | `i"` `a"` | Inner/around double quotes |
+| Operator | `i'` `a'` | Inner/around single quotes |
+| Operator | `i)` `a)` | Inner/around parentheses |
+| Operator | `i]` `a]` | Inner/around brackets |
+| Operator | `i}` `a}` | Inner/around braces |
+| Operator | `it` `at` | Inner/around HTML tag |
+| Operator | `if` `af` | Inner/around function (treesitter) |
+| Operator | `ic` `ac` | Inner/around class (treesitter) |
+| Operator | `ia` `aa` | Inner/around argument (treesitter) |
+
+### Custom Keybindings
+
+#### General
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal/Insert | `Ctrl-s` | Save file |
+| Visual | `Ctrl-c` | Copy to system clipboard |
+| Visual | `Ctrl-x` | Cut to system clipboard |
+| Normal/Insert | `Ctrl-v` | Paste from system clipboard |
+| Normal | `Ctrl-z` | Undo |
+| Normal | `Ctrl-y` | Redo |
+| Normal/Visual | `Alt-j` | Move line(s) down |
+| Normal/Visual | `Alt-k` | Move line(s) up |
+| Normal/Visual | `Ctrl-d` | Multi-cursor select next |
+
+#### Window/Split Management
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `Ctrl-h` | Focus left pane |
+| Normal | `Ctrl-j` | Focus down pane |
+| Normal | `Ctrl-k` | Focus up pane |
+| Normal | `Ctrl-l` | Focus right pane |
+| Normal | `<leader>\|` | Vertical split |
+| Normal | `<leader>_` | Horizontal split |
+| Normal | `Ctrl-w sv` | New file vertical split |
+| Normal | `Ctrl-w sh` | New file horizontal split |
+| Normal | `Ctrl-w z` | Zoom current pane |
+| Normal | `Ctrl-w q` | Close window |
+
+#### Buffers
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `Shift-h` | Previous buffer |
+| Normal | `Shift-l` | Next buffer |
+| Normal | `<leader>bd` | Delete buffer |
+| Normal | `<leader>,` | List buffers (Telescope) |
+
+#### File Explorer
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `Ctrl-e` | Toggle file explorer |
+| Normal | `-` | Reveal current file in tree |
+
+#### Terminal
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `` Ctrl-` `` | Toggle terminal |
+
+#### Telescope (Finder)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `<leader>ff` | Find files |
+| Normal | `<leader>/` | Live grep |
+| Normal | `<leader>fo` | Recent files |
+| Normal | `,fo` | Recent files (Zed style) |
+| Normal | `<leader>:` | Command history |
+
+#### LSP
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `gd` | Go to definition |
+| Normal | `gD` | Go to declaration |
+| Normal | `gI` | Go to implementation |
+| Normal | `gy` | Go to type definition |
+| Normal | `gR` | Find all references |
+| Normal | `gr` | Rename symbol |
+| Normal | `ga` | Code actions |
+| Normal | `K` | Hover documentation |
+| Normal | `g]` | Next diagnostic |
+| Normal | `g[` | Previous diagnostic |
+| Normal | `]d` | Next diagnostic |
+| Normal | `[d` | Previous diagnostic |
+| Normal | `<leader>cd` | Show line diagnostics |
+
+#### Git (gitsigns)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `]c` | Next git hunk |
+| Normal | `[c` | Previous git hunk |
+| Normal | `,gb` | Git blame line |
+| Normal | `<leader>gb` | Git blame line |
+| Normal | `<leader>hs` | Stage hunk |
+| Normal | `<leader>hr` | Reset hunk |
+| Normal | `<leader>hp` | Preview hunk |
+
+#### Treesitter
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal/Visual | `[x` | Expand syntax selection |
+| Visual | `]x` | Shrink syntax selection |
+
+#### Surround (nvim-surround)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `ys{motion}{char}` | Add surround (e.g., `ysiw"`) |
+| Normal | `cs{old}{new}` | Change surround (e.g., `cs"'`) |
+| Normal | `ds{char}` | Delete surround (e.g., `ds"`) |
+
+#### Comment (Comment.nvim)
+
+| Mode | Keys | Description |
+| :--- | :--- | :--- |
+| Normal | `gcc` | Toggle line comment |
+| Normal | `gbc` | Toggle block comment |
+| Visual | `gc` | Toggle comment selection |
 
 ## Mux Bindings
 
