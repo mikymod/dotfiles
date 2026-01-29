@@ -1,18 +1,24 @@
 return {
     "nvim-telescope/telescope.nvim",
 
-    tag = "0.1.5",
+    branch = "0.1.x",
 
     dependencies = {
         "nvim-lua/plenary.nvim"
     },
 
     config = function()
-        require('telescope').setup({})
+        require('telescope').setup({
+            defaults = {
+                file_ignore_patterns = { "node_modules", ".git/" },
+                preview = {
+                    treesitter = false,
+                },
+            },
+        })
 
         local builtin = require('telescope.builtin')
         vim.keymap.set('n', '<leader>pf', builtin.find_files, {})
-        -- vim.keymap.set('n', '<C-p>', builtin.git_files, {})
         vim.keymap.set('n', '<leader>pws', function()
             local word = vim.fn.expand("<cword>")
             builtin.grep_string({ search = word })

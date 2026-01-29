@@ -22,9 +22,17 @@ if type fzf &> /dev/null && type rg &> /dev/null; then
   export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!vendor/*"'
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
   export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
+
+  eval "$(fzf --bash)"
+fi
+
+# fastfetch
+if type fastfetch &> /dev/null;  then
+    fastfetch
 fi
 
 # Source local config (not tracked in git)
 if [ -f ~/.bashrc.local ]; then
     source ~/.bashrc.local
 fi
+
