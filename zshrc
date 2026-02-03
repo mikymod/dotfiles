@@ -2,9 +2,24 @@
 typeset -U PATH
 autoload colors; colors;
 
+# Helper functions to avoid adding duplicate paths
+add_to_path() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$1:$PATH"
+    fi
+}
+
+add_to_path_suffix() {
+    if [ -d "$1" ] && [[ ":$PATH:" != *":$1:"* ]]; then
+        PATH="$PATH:$1"
+    fi
+}
+
 # HISTORY
 HISTFILE=$HOME/.zsh_history
 HISTSIZE=50000
+HISTFILESIZE=50000
+HISTTIMEFORMAT="%F %T "
 SAVEHIST=50000
 
 setopt INC_APPEND_HISTORY     # Immediately append to history file.
@@ -17,25 +32,6 @@ setopt HIST_IGNORE_SPACE      # Dont record an entry starting with a space.
 setopt HIST_SAVE_NO_DUPS      # Dont write duplicate entries in the history file.
 setopt SHARE_HISTORY          # Share history between all sessions.
 unsetopt HIST_VERIFY          # Execute commands using history (e.g.: using !$) immediately
-
-# Git 
-alias gst='git status'
-alias gaa='git add -A'
-alias gc='git commit'
-alias gcm='git checkout main'
-alias gd='git diff'
-alias gdc='git diff --cached'
-alias co='git checkout'
-alias up='git push'
-alias upf='git push --force'
-alias pu='git pull'
-alias pur='git pull --rebase'
-alias fe='git fetch'
-alias re='git rebase'
-alias lr='git l -30'
-alias cdr='cd $(git rev-parse --show-toplevel)' # cd to git Root
-alias hs='git rev-parse --short HEAD'
-alias hm='git log --format=%B -n 1 HEAD'
 
 beautiful() {
   while
@@ -57,8 +53,26 @@ spinner() {
 
 export XDG_CONFIG_HOME=$HOME/.config
 
+# fzf
+if type fzf &> /dev/null && type rg &> /dev/null; then
+  export FZF_DEFAULT_COMMAND='rg --files --hidden --follow --glob "!.git/*" --glob "!vendor/*"'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND="$FZF_DEFAULT_COMMAND"
+
+  eval "$(fzf --zsh)"
+fi
+
+# fastfetch
+if type fastfetch &> /dev/null;  then
+    fastfetch
+fi
+
 ## [Completion]
 ## Completion scripts setup. Remove the following line to uninstall
 [[ -f /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh || true
 ## [/Completion]
 
+# Source local config (not tracked in git)
+if [ -f ~/.zshrc.local ]; then
+    source ~/.zshrc.local
+fi
