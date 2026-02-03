@@ -27,6 +27,7 @@ window#waybar {
 }
 
 #clock,
+#language,
 #battery,
 #network,
 #pulseaudio,
@@ -75,4 +76,9 @@ window#waybar {
 #backlight {
     background-color: rgba(249, 226, 175, 0.2);
     color: #f9e2af;
+}
+
+#language {
+    color: #ffffff;
+    background-color: #333333;
 }
