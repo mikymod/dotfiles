@@ -4,7 +4,7 @@ DOTFILE_PATH := $(shell pwd)
 $(HOME)/.%: %
 	ln -sf $(DOTFILE_PATH)/$^ $@
 
-bash: $(HOME)/.bashrc $(HOME)/.bash_profile
+bash: $(HOME)/.bashrc $(HOME)/.bash_profile $(HOME)/.functions
 
 zsh: $(HOME)/.zshrc
 

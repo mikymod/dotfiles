@@ -32,6 +32,7 @@ window#waybar {
 #network,
 #pulseaudio,
 #backlight,
+#custom-monitor-layout,
 #tray {
     padding: 0 12px;
     margin: 3px 2px;
@@ -81,4 +82,9 @@ window#waybar {
 #language {
     color: #ffffff;
     background-color: #333333;
+}
+
+#custom-monitor-layout {
+    background-color: rgba(180, 190, 254, 0.2);
+    color: #b4befe;
 }

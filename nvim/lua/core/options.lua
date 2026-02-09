@@ -33,3 +33,9 @@ opt.incsearch = true  -- Show search results as you type
 opt.ignorecase = true -- Ignore case in search
 opt.smartcase = true  -- ...unless search contains an uppercase letter
 
+-- == YANK HIGHLIGHT ==
+vim.api.nvim_create_autocmd("TextYankPost", {
+    callback = function()
+        vim.highlight.on_yank()
+    end,
+})

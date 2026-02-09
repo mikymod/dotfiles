@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+mode=${1:-}
+if [[ -z "$mode" ]]; then
+  echo "usage: $0 [main|external]" >&2
+  exit 1
+fi
+
+monitor_json=$(hyprctl -j monitors all)
+
+primary_output=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$monitor_json" | head -n 1)
+if [[ -z "$primary_output" || "$primary_output" == "null" ]]; then
+  primary_output=$(jq -r '.[] | select(.focused == true) | .name' <<<"$monitor_json" | head -n 1)
+fi
+
+if [[ -z "$primary_output" || "$primary_output" == "null" ]]; then
+  primary_output=$(jq -r '.[0].name' <<<"$monitor_json")
+fi
+
+external_output=$(jq -r --arg primary "$primary_output" '.[] | select(.name != $primary) | .name' <<<"$monitor_json" | head -n 1)
+
+if [[ "$mode" == "main" ]]; then
+  target_output="$primary_output"
+else
+  target_output="$external_output"
+fi
+
+if [[ -z "$target_output" || "$target_output" == "null" ]]; then
+  hyprctl notify 3 2000 "rgb(f38ba8)" "Workspace move: no external monitor found"
+  exit 1
+fi
+
+hyprctl dispatch movecurrentworkspacetomonitor "$target_output"
