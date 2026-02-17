@@ -13,6 +13,7 @@
         "hyprland/language",
         "custom/monitor-layout",
         "network",
+        "custom/vpn",
         "pulseaudio",
         "backlight",
         "battery"
@@ -87,6 +88,20 @@
         "exec": "~/.config/hypr/scripts/monitor-layout-status",
         "interval": 2,
         "on-click": "~/.config/hypr/scripts/toggle-monitor-layout",
+        "tooltip": true
+    },
+    "custom/vpn": {
+        "format": "{icon}",
+        "format-icons": {
+            "connected": "󰖂",
+            "disconnected": "󰖂",
+            "none": "󰖂"
+        },
+        "return-type": "json",
+        "exec": "~/.config/hypr/scripts/vpn-status",
+        "interval": 2,
+        "on-click": "~/.config/hypr/scripts/vpn-toggle",
+        "on-click-right": "ghostty -e ~/.config/hypr/scripts/vpn-select",
         "tooltip": true
     },
     "tray": {

@@ -212,3 +212,33 @@ Leader -> ctrl + a
 hsplit -> leader + %
 vsplit -> leader + "
 move -> leader + [h,j,k,l]
+
+## Hyprland OpenVPN Toggle
+
+This repo includes a Waybar VPN toggle for Hyprland.
+
+Requirements:
+- openvpn
+- waybar
+
+Setup:
+1. Place `.ovpn` files in `~/.config/openvpn/`.
+2. Right-click the VPN icon in Waybar to select a profile and store credentials.
+3. Left-click the VPN icon to connect or disconnect.
+
+If you want to create it manually, `vpn.conf` should look like:
+```
+VPN_NAME="my-vpn-profile"
+VPN_CONFIG_PATH="/home/you/.config/openvpn/my-vpn-profile.ovpn"
+```
+
+Credentials are optional. If your `.ovpn` handles auth itself, omit these keys. If you need them, add:
+```
+VPN_USER="your_username"
+VPN_PASSWORD="your_password"
+```
+
+Scripts are located in `~/.config/hypr/scripts/`:
+- `vpn-status`
+- `vpn-toggle`
+- `vpn-select`

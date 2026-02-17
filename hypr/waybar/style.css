@@ -30,6 +30,7 @@ window#waybar {
 #language,
 #battery,
 #network,
+#custom-vpn,
 #pulseaudio,
 #backlight,
 #custom-monitor-layout,
@@ -67,6 +68,21 @@ window#waybar {
 #network {
     background-color: rgba(137, 180, 250, 0.2);
     color: #89b4fa;
+}
+
+#custom-vpn {
+    background-color: rgba(249, 226, 175, 0.2);
+    color: #f9e2af;
+}
+
+#custom-vpn.connected {
+    background-color: rgba(166, 227, 161, 0.2);
+    color: #a6e3a1;
+}
+
+#custom-vpn.disconnected {
+    background-color: rgba(243, 139, 168, 0.2);
+    color: #f38ba8;
 }
 
 #pulseaudio {
