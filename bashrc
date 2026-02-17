@@ -123,12 +123,12 @@ ssh_agent_add_all() {
 
 ssh_agent_add_all
 
+if [ -f ~/.functions ]; then
+    source ~/.functions
+fi
+
 # Source local config (not tracked in git)
 if [ -f ~/.bashrc.local ]; then
     source ~/.bashrc.local
 fi
 
-# Source local config (not tracked in git)
-if [ -f ~/.functions ]; then
-    source ~/.functions
-fi

@@ -164,7 +164,12 @@ ssh_agent_add_all
 [[ -f /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh || true
 ## [/Completion]
 
+if [ -f ~/.functions ]; then
+    source ~/.functions
+fi
+
 # Source local config (not tracked in git)
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
+
