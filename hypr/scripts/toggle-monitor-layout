@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+PRIMARY_OUTPUT="${HYPR_MONITOR_PRIMARY:-}"
+EXTEND_OUTPUT="${HYPR_MONITOR_EXTERNAL:-}"
+PRIMARY_MODE="preferred"
+EXTEND_MODE="preferred"
+
+monitor_json=$(hyprctl -j monitors all)
+
+if [[ -z "$PRIMARY_OUTPUT" ]]; then
+  PRIMARY_OUTPUT=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$monitor_json" | head -n 1)
+fi
+
+if [[ -z "$PRIMARY_OUTPUT" ]]; then
+  PRIMARY_OUTPUT=$(jq -r '.[] | select(.focused == true) | .name' <<<"$monitor_json" | head -n 1)
+fi
+
+if [[ -z "$PRIMARY_OUTPUT" ]]; then
+  PRIMARY_OUTPUT=$(jq -r '.[0].name' <<<"$monitor_json")
+fi
+
+if [[ -z "$EXTEND_OUTPUT" ]]; then
+  EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$monitor_json" | head -n 1)
+fi
+
+if [[ -z "$EXTEND_OUTPUT" || "$EXTEND_OUTPUT" == "null" ]]; then
+  hyprctl notify 3 2000 "rgb(f38ba8)" "Display mode: no external monitor found"
+  exit 1
+fi
+
+PRIMARY_SCALE=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .scale' <<<"$monitor_json")
+EXTEND_SCALE=$(jq -r --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | .scale' <<<"$monitor_json")
+PRIMARY_SCALE=${PRIMARY_SCALE:-1}
+EXTEND_SCALE=${EXTEND_SCALE:-1}
+PRIMARY_WIDTH=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .width' <<<"$monitor_json")
+PRIMARY_HEIGHT=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .height' <<<"$monitor_json")
+PRIMARY_WIDTH=${PRIMARY_WIDTH:-0}
+PRIMARY_HEIGHT=${PRIMARY_HEIGHT:-0}
+PRIMARY_POS_X=$(awk -v width="$PRIMARY_WIDTH" -v scale="$PRIMARY_SCALE" 'BEGIN { if (scale == 0) scale = 1; printf "%d", width / scale }')
+PRIMARY_POS_Y=0
+
+is_mirrored() {
+  jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf != "" and .mirrorOf != "none" and .mirrorOf != null)' <<<"$monitor_json" >/dev/null
+}
+
+apply_extend() {
+  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$PRIMARY_MODE,0x0,$PRIMARY_SCALE; keyword monitor $EXTEND_OUTPUT,$EXTEND_MODE,${PRIMARY_POS_X}x${PRIMARY_POS_Y},$EXTEND_SCALE"
+  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Extend ($PRIMARY_OUTPUT + $EXTEND_OUTPUT)"
+}
+
+apply_mirror() {
+  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$PRIMARY_MODE,0x0,$PRIMARY_SCALE; keyword monitor $EXTEND_OUTPUT,$EXTEND_MODE,0x0,$EXTEND_SCALE,mirror,$PRIMARY_OUTPUT"
+  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Mirror ($EXTEND_OUTPUT -> $PRIMARY_OUTPUT)"
+}
+
+if is_mirrored; then
+  apply_extend
+else
+  apply_mirror
+fi

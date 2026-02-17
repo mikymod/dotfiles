@@ -1,58 +1,95 @@
 {
-  "position": "top",
-  "height": 30,
-  "spacing": 4,
-
-  "modules-left": ["hyprland/workspaces"],
-  "modules-center": ["clock"],
-  "modules-right": ["tray", "network", "pulseaudio", "backlight", "battery"],
-
-  "hyprland/workspaces": {
-    "format": "{id}",
-    "on-click": "activate"
-  },
-
-  "clock": {
-    "format": "{:%a %b %d  %H:%M}",
-    "tooltip-format": "<tt>{calendar}</tt>"
-  },
-
-  "battery": {
-    "interval": 5,
-    "states": {
-      "warning": 30,
-      "critical": 15
+    "position": "top",
+    "height": 30,
+    "spacing": 4,
+    "modules-left": [
+        "hyprland/workspaces"
+    ],
+    "modules-center": [
+        "clock"
+    ],
+    "modules-right": [
+        "tray",
+        "hyprland/language",
+        "custom/monitor-layout",
+        "network",
+        "pulseaudio",
+        "backlight",
+        "battery"
+    ],
+    "hyprland/workspaces": {
+        "format": "{id}",
+        "on-click": "activate"
     },
-    "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
-    "format-plugged": "󰚥 {capacity}%",
-    "format-icons": ["󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
-    "tooltip-format": "{timeTo}\nPower: {power:.1f}W"
-  },
-
-  "network": {
-    "format-wifi": "󰖩 {signalStrength}%",
-    "format-ethernet": "󰈀",
-    "format-disconnected": "󰖪",
-    "tooltip-format-wifi": "{essid}\n{ipaddr}",
-    "on-click": "nm-connection-editor"
-  },
-
-  "pulseaudio": {
-    "format": "{icon} {volume}%",
-    "format-muted": "󰝟",
-    "format-icons": {
-      "default": ["󰕿", "󰖀", "󰕾"]
+    "clock": {
+        "format": "{:%a %b %d  %H:%M}",
+        "tooltip-format": "<tt>{calendar}</tt>"
     },
-    "on-click": "pavucontrol",
-    "scroll-step": 5
-  },
-
-  "backlight": {
-    "format": "󰃟 {percent}%"
-  },
-
-  "tray": {
-    "spacing": 10
-  }
+    "battery": {
+        "interval": 5,
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-icons": [
+            "󰁺",
+            "󰁻",
+            "󰁼",
+            "󰁽",
+            "󰁾",
+            "󰁿",
+            "󰂀",
+            "󰂁",
+            "󰂂",
+            "󰁹"
+        ],
+        "tooltip-format": "{timeTo}\nPower: {power:.1f}W"
+    },
+    "hyprland/language": {
+        "format": "{}",
+        "format-en": "US",
+        "format-it": "IT",
+        "on-click": "hyprctl switchxkblayout at-translated-set-2-keyboard next"
+    },
+    "network": {
+        "format-wifi": "󰖩 {signalStrength}%",
+        "format-ethernet": "󰈀",
+        "format-disconnected": "󰖪",
+        "tooltip-format-wifi": "{essid}\n{ipaddr}",
+        "on-click": "nm-connection-editor"
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
+        "format-icons": {
+            "default": [
+                "󰕿",
+                "󰖀",
+                "󰕾"
+            ]
+        },
+        "on-click": "pavucontrol",
+        "scroll-step": 5
+    },
+    "backlight": {
+        "format": "󰃟 {percent}%"
+    },
+    "custom/monitor-layout": {
+        "format": "{icon}",
+        "format-icons": {
+            "extend": "󰍹",
+            "mirror": "󰍺"
+        },
+        "return-type": "json",
+        "exec": "~/.config/hypr/scripts/monitor-layout-status",
+        "interval": 2,
+        "on-click": "~/.config/hypr/scripts/toggle-monitor-layout",
+        "tooltip": true
+    },
+    "tray": {
+        "spacing": 10
+    }
 }

@@ -27,10 +27,12 @@ window#waybar {
 }
 
 #clock,
+#language,
 #battery,
 #network,
 #pulseaudio,
 #backlight,
+#custom-monitor-layout,
 #tray {
     padding: 0 12px;
     margin: 3px 2px;
@@ -75,4 +77,14 @@ window#waybar {
 #backlight {
     background-color: rgba(249, 226, 175, 0.2);
     color: #f9e2af;
+}
+
+#language {
+    color: #ffffff;
+    background-color: #333333;
+}
+
+#custom-monitor-layout {
+    background-color: rgba(180, 190, 254, 0.2);
+    color: #b4befe;
 }

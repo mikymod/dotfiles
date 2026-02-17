@@ -10,9 +10,24 @@ return {
     config = function()
         require('telescope').setup({
             defaults = {
+                hidden = true,
+                no_ignore = true,
                 file_ignore_patterns = { "node_modules", ".git/" },
                 preview = {
                     treesitter = false,
+
+                },
+            },
+            pickers = {
+                find_files = {
+                    hidden = true,
+                    no_ignore = true,
+                    file_ignore_patterns = {
+                        "node_modules",
+                        ".ruff_cache",
+                        ".git/",
+                        ".mypy_cache",
+                    },
                 },
             },
         })
@@ -33,4 +48,3 @@ return {
         vim.keymap.set('n', '<leader>vh', builtin.help_tags, {})
     end
 }
-
