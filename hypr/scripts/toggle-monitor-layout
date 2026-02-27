@@ -3,56 +3,107 @@ set -euo pipefail
 
 PRIMARY_OUTPUT="${HYPR_MONITOR_PRIMARY:-}"
 EXTEND_OUTPUT="${HYPR_MONITOR_EXTERNAL:-}"
-PRIMARY_MODE="preferred"
-EXTEND_MODE="preferred"
+MONITOR_MODE="preferred"
+STATE_FILE="/tmp/hypr-external-workspaces"
 
-monitor_json=$(hyprctl -j monitors all)
+monitor_json=""
+active_monitor_json=""
 
-if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$monitor_json" | head -n 1)
-fi
+resolve_outputs() {
+  monitor_json=$(hyprctl -j monitors all)
+  active_monitor_json=$(hyprctl -j monitors)
 
-if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[] | select(.focused == true) | .name' <<<"$monitor_json" | head -n 1)
-fi
+  if [[ -z "$PRIMARY_OUTPUT" ]]; then
+    PRIMARY_OUTPUT=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$active_monitor_json" | head -n 1)
+  fi
 
-if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[0].name' <<<"$monitor_json")
-fi
+  if [[ -z "$PRIMARY_OUTPUT" ]]; then
+    PRIMARY_OUTPUT=$(jq -r '.[] | select(.focused == true) | .name' <<<"$active_monitor_json" | head -n 1)
+  fi
 
-if [[ -z "$EXTEND_OUTPUT" ]]; then
-  EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$monitor_json" | head -n 1)
-fi
+  if [[ -z "$PRIMARY_OUTPUT" ]]; then
+    PRIMARY_OUTPUT=$(jq -r '.[0].name // empty' <<<"$active_monitor_json")
+  fi
+
+  if [[ -z "$EXTEND_OUTPUT" ]]; then
+    EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$active_monitor_json" | head -n 1)
+  fi
+
+  if [[ -z "$EXTEND_OUTPUT" || "$EXTEND_OUTPUT" == "null" ]]; then
+    EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$monitor_json" | head -n 1)
+  fi
+}
+
+is_mirrored() {
+  jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf != "" and .mirrorOf != "none" and .mirrorOf != null)' <<<"$monitor_json" >/dev/null 2>&1
+}
+
+wait_for_extend_ready() {
+  local i=0
+  while (( i < 25 )); do
+    local state_all_json
+    local state_active_json
+    state_all_json=$(hyprctl -j monitors all 2>/dev/null || true)
+    state_active_json=$(hyprctl -j monitors 2>/dev/null || true)
+
+    if jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output)' <<<"$state_active_json" >/dev/null 2>&1 \
+      && jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf == "" or .mirrorOf == "none" or .mirrorOf == null)' <<<"$state_all_json" >/dev/null 2>&1; then
+      return 0
+    fi
+
+    sleep 0.1
+    ((i += 1))
+  done
+}
+
+save_external_workspaces() {
+  hyprctl -j workspaces \
+    | jq -r --arg output "$EXTEND_OUTPUT" '.[] | select(.monitor == $output and (.id // 0) > 0) | .name' \
+    >"$STATE_FILE" 2>/dev/null || true
+}
+
+restore_external_workspaces() {
+  [[ -f "$STATE_FILE" ]] || return 0
+
+while IFS= read -r workspace; do
+    [[ -n "$workspace" ]] || continue
+    hyprctl dispatch moveworkspacetomonitor "$workspace" "$EXTEND_OUTPUT" >/dev/null 2>&1 || true
+  done <"$STATE_FILE"
+}
+
+refresh_waybar() {
+  local extra_delay="${1:-0}"
+  sleep "$extra_delay"
+
+  if pgrep -x waybar >/dev/null 2>&1; then
+    pkill -SIGUSR2 -x waybar >/dev/null 2>&1 || true
+    return
+  fi
+
+  waybar -c ~/.config/waybar/config.jsonc -s ~/.config/waybar/style.css >/dev/null 2>&1 &
+}
+
+apply_extend() {
+  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$MONITOR_MODE,auto,1; keyword monitor $EXTEND_OUTPUT,$MONITOR_MODE,auto-right,1"
+  wait_for_extend_ready || true
+  restore_external_workspaces
+  refresh_waybar 0.6
+  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Extend ($PRIMARY_OUTPUT + $EXTEND_OUTPUT)"
+}
+
+apply_mirror() {
+  save_external_workspaces
+  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$MONITOR_MODE,auto,1; keyword monitor $EXTEND_OUTPUT,$MONITOR_MODE,auto,1,mirror,$PRIMARY_OUTPUT"
+  refresh_waybar 0.2
+  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Mirror ($EXTEND_OUTPUT -> $PRIMARY_OUTPUT)"
+}
+
+resolve_outputs
 
 if [[ -z "$EXTEND_OUTPUT" || "$EXTEND_OUTPUT" == "null" ]]; then
   hyprctl notify 3 2000 "rgb(f38ba8)" "Display mode: no external monitor found"
   exit 1
 fi
-
-PRIMARY_SCALE=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .scale' <<<"$monitor_json")
-EXTEND_SCALE=$(jq -r --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | .scale' <<<"$monitor_json")
-PRIMARY_SCALE=${PRIMARY_SCALE:-1}
-EXTEND_SCALE=${EXTEND_SCALE:-1}
-PRIMARY_WIDTH=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .width' <<<"$monitor_json")
-PRIMARY_HEIGHT=$(jq -r --arg output "$PRIMARY_OUTPUT" '.[] | select(.name == $output) | .height' <<<"$monitor_json")
-PRIMARY_WIDTH=${PRIMARY_WIDTH:-0}
-PRIMARY_HEIGHT=${PRIMARY_HEIGHT:-0}
-PRIMARY_POS_X=$(awk -v width="$PRIMARY_WIDTH" -v scale="$PRIMARY_SCALE" 'BEGIN { if (scale == 0) scale = 1; printf "%d", width / scale }')
-PRIMARY_POS_Y=0
-
-is_mirrored() {
-  jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf != "" and .mirrorOf != "none" and .mirrorOf != null)' <<<"$monitor_json" >/dev/null
-}
-
-apply_extend() {
-  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$PRIMARY_MODE,0x0,$PRIMARY_SCALE; keyword monitor $EXTEND_OUTPUT,$EXTEND_MODE,${PRIMARY_POS_X}x${PRIMARY_POS_Y},$EXTEND_SCALE"
-  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Extend ($PRIMARY_OUTPUT + $EXTEND_OUTPUT)"
-}
-
-apply_mirror() {
-  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$PRIMARY_MODE,0x0,$PRIMARY_SCALE; keyword monitor $EXTEND_OUTPUT,$EXTEND_MODE,0x0,$EXTEND_SCALE,mirror,$PRIMARY_OUTPUT"
-  hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Mirror ($EXTEND_OUTPUT -> $PRIMARY_OUTPUT)"
-}
 
 if is_mirrored; then
   apply_extend

@@ -5,20 +5,25 @@ PRIMARY_OUTPUT="${HYPR_MONITOR_PRIMARY:-}"
 EXTEND_OUTPUT="${HYPR_MONITOR_EXTERNAL:-}"
 
 monitor_json=$(hyprctl -j monitors all)
+active_monitor_json=$(hyprctl -j monitors)
 
 if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$monitor_json" | head -n 1)
+  PRIMARY_OUTPUT=$(jq -r '.[] | select(.name | test("^(eDP|LVDS|DSI)")) | .name' <<<"$active_monitor_json" | head -n 1)
 fi
 
 if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[] | select(.focused == true) | .name' <<<"$monitor_json" | head -n 1)
+  PRIMARY_OUTPUT=$(jq -r '.[] | select(.focused == true) | .name' <<<"$active_monitor_json" | head -n 1)
 fi
 
 if [[ -z "$PRIMARY_OUTPUT" ]]; then
-  PRIMARY_OUTPUT=$(jq -r '.[0].name' <<<"$monitor_json")
+  PRIMARY_OUTPUT=$(jq -r '.[0].name // empty' <<<"$active_monitor_json")
 fi
 
 if [[ -z "$EXTEND_OUTPUT" ]]; then
+  EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$active_monitor_json" | head -n 1)
+fi
+
+if [[ -z "$EXTEND_OUTPUT" || "$EXTEND_OUTPUT" == "null" ]]; then
   EXTEND_OUTPUT=$(jq -r --arg primary "$PRIMARY_OUTPUT" '.[] | select(.name != $primary) | .name' <<<"$monitor_json" | head -n 1)
 fi
 
@@ -27,7 +32,7 @@ if [[ -z "$EXTEND_OUTPUT" || "$EXTEND_OUTPUT" == "null" ]]; then
   exit 0
 fi
 
-if jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf != "" and .mirrorOf != "none" and .mirrorOf != null)' >/dev/null <<<"$monitor_json"; then
+if jq -e --arg output "$EXTEND_OUTPUT" '.[] | select(.name == $output) | (.mirrorOf != "" and .mirrorOf != "none" and .mirrorOf != null)' >/dev/null 2>&1 <<<"$monitor_json"; then
   echo "{\"alt\":\"mirror\",\"tooltip\":\"Display mode: Mirror ($EXTEND_OUTPUT -> $PRIMARY_OUTPUT)\"}"
 else
   echo "{\"alt\":\"extend\",\"tooltip\":\"Display mode: Extend ($PRIMARY_OUTPUT + $EXTEND_OUTPUT)\"}"
