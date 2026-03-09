@@ -50,6 +50,16 @@ return {
                         }
                     }
                 end,
+
+                ["clangd"] = function()
+                    local lspconfig = require("lspconfig")
+                    lspconfig.clangd.setup {
+                        capabilities = capabilities,
+                        init_options = {
+                            fallbackFlags = { "-std=c11" },
+                        },
+                    }
+                end,
             }
         })
 

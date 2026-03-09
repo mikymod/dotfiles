@@ -15,6 +15,14 @@ add_to_path_suffix() {
     fi
 }
 
+# eza aliases
+if type eza &> /dev/null; then
+    alias ls='eza'
+    alias lt='eza --tree --level=2'
+    alias lsa='eza -a'
+    alias lta='eza --tree --level=2 -a'
+fi
+
 # HISTORY
 HISTFILE=$HOME/.zsh_history
 HISTSIZE=50000
@@ -172,4 +180,3 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
-
