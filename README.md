@@ -204,41 +204,23 @@ For machine-specific or private configuration (e.g., work-related PATH exports),
 | Normal | `gbc` | Toggle block comment |
 | Visual | `gc` | Toggle comment selection |
 
-## Mux Bindings
+## Terminal Pane Management (WezTerm / Ghostty)
 
-No tmux installed :) We rely on terminal (look at wezterm.lua)
+Both terminals share the same leader-key conventions.
 
-Leader -> ctrl + a
-hsplit -> leader + %
-vsplit -> leader + "
-move -> leader + [h,j,k,l]
+Leader: `Ctrl+a`
 
-## Hyprland OpenVPN Toggle
+| Keys | WezTerm | Ghostty |
+| :--- | :--- | :--- |
+| `leader + \` | Horizontal split | Horizontal split (`right`) |
+| `leader + -` | Vertical split | Vertical split (`down`) |
+| `leader + h/j/k/l` | Move focus | Move focus |
+| `leader + H/J/K/L` | Resize pane | — |
+| `leader + x` | Close pane | Close surface |
+| `leader + z` | Toggle zoom | — |
+| `leader + t` | New tab | New tab |
+| `leader + T` | Close tab | Close tab |
+| `leader + n/p` | New window (n) | Next/previous tab |
+| `Alt + 1-5` | Switch to tab 1-5 | — |
 
-This repo includes a Waybar VPN toggle for Hyprland.
-
-Requirements:
-- openvpn
-- waybar
-
-Setup:
-1. Place `.ovpn` files in `~/.config/openvpn/`.
-2. Right-click the VPN icon in Waybar to select a profile and store credentials.
-3. Left-click the VPN icon to connect or disconnect.
-
-If you want to create it manually, `vpn.conf` should look like:
-```
-VPN_NAME="my-vpn-profile"
-VPN_CONFIG_PATH="/home/you/.config/openvpn/my-vpn-profile.ovpn"
-```
-
-Credentials are optional. If your `.ovpn` handles auth itself, omit these keys. If you need them, add:
-```
-VPN_USER="your_username"
-VPN_PASSWORD="your_password"
-```
-
-Scripts are located in `~/.config/hypr/scripts/`:
-- `vpn-status`
-- `vpn-toggle`
-- `vpn-select`
+See `wezterm.lua` and `ghostty_config` for the full keybinding tables.
