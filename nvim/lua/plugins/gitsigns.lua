@@ -30,12 +30,6 @@ return {
 
                 -- Git blame (matches Zed's ,gb)
                 map("n", ",gb", gs.blame_line, opts)
-                map("n", "<leader>gb", gs.blame_line, opts)
-
-                -- Stage/unstage hunks
-                map("n", "<leader>hs", gs.stage_hunk, opts)
-                map("n", "<leader>hr", gs.reset_hunk, opts)
-                map("n", "<leader>hp", gs.preview_hunk, opts)
             end,
         })
     end,

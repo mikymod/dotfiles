@@ -78,7 +78,7 @@ return {
 
                 -- Code/LSP
                 { "<leader>ca", vim.lsp.buf.code_action,                                        desc = "Code Action" },
-                { "<leader>cd", vim.diagnostic.open_float,                                      desc = "Line Diagnostics" },
+                { "<leader>cd", desc = "Line Diagnostics" },
                 -- { "<leader>cf", function() vim.lsp.buf.format({ async = true }) end, desc = "Format" },
                 { "<leader>cr", vim.lsp.buf.rename,                                             desc = "Rename" },
 
@@ -129,19 +129,19 @@ return {
                 { "<leader>xl", function() vim.diagnostic.setloclist({ open = true }) end,      desc = "Location List" },
                 { "<leader>xq", function() vim.diagnostic.setqflist({ open = true }) end,        desc = "Quickfix List" },
 
-                -- Goto with descriptions
-                { "gd",         vim.lsp.buf.definition,                                         desc = "Definition" },
-                { "gD",         vim.lsp.buf.declaration,                                        desc = "Declaration" },
-                { "gI",         vim.lsp.buf.implementation,                                     desc = "Implementation" },
-                { "gr",         vim.lsp.buf.rename,                                             desc = "Rename" },
-                { "gR",         vim.lsp.buf.references,                                         desc = "References" },
-                { "gy",         vim.lsp.buf.type_definition,                                    desc = "Type Definition" },
-                { "ga",         vim.lsp.buf.code_action,                                        desc = "Code Action" },
-                { "K",          vim.lsp.buf.hover,                                              desc = "Hover" },
+                -- Goto with descriptions (keybinds in lua/core/keymaps.lua)
+                { "gd",         desc = "Definition" },
+                { "gD",         desc = "Declaration" },
+                { "gI",         desc = "Implementation" },
+                { "gr",         desc = "Rename" },
+                { "gR",         desc = "References" },
+                { "gy",         desc = "Type Definition" },
+                { "ga",         desc = "Code Action" },
+                { "K",          desc = "Hover" },
 
                 -- Navigation with descriptions
-                { "]d",         vim.diagnostic.goto_next,                                       desc = "Next Diagnostic" },
-                { "[d",         vim.diagnostic.goto_prev,                                       desc = "Prev Diagnostic" },
+                { "]d",         desc = "Next Diagnostic" },
+                { "[d",         desc = "Prev Diagnostic" },
                 { "]c",         desc = "Next Hunk" },
                 { "[c",         desc = "Prev Hunk" },
             },
