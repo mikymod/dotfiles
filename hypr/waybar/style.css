@@ -88,3 +88,9 @@ window#waybar {
     background-color: rgba(180, 190, 254, 0.2);
     color: #b4befe;
 }
+
+
+tooltip {
+    background: rgba(30, 35, 35, 0.85);
+    border-radius: 8px;
+}
