@@ -1,3 +1,5 @@
 source .bashrc
 
-start-hyprland
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    start-hyprland
+fi

@@ -46,4 +46,12 @@ $(HOME)/.config/waybar:
 
 hypr: $(HOME)/.config/hypr $(HOME)/.config/waybar
 
-all: zsh bash git ghostty wezterm nvim zed hypr
+.PHONY: pi
+
+pi:
+	mkdir -p $(HOME)/.pi/agent
+	ln -sf $(DOTFILE_PATH)/pi/settings.json $(HOME)/.pi/agent/settings.json
+	ln -sf $(DOTFILE_PATH)/pi/skills $(HOME)/.pi/agent/skills
+	ln -sf $(DOTFILE_PATH)/pi/themes $(HOME)/.pi/agent/themes
+
+all: zsh bash git ghostty wezterm nvim zed hypr pi

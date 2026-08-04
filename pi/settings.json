@@ -1,0 +1,30 @@
+{
+  "theme": "gruvbox-dark",
+  "quietStartup": false,
+  "defaultProjectTrust": "always",
+  "defaultProvider": "tesseract-local",
+  "defaultModel": "ds4-flash",
+  "defaultThinkingLevel": "medium",
+  "hideThinkingBlock": false,
+  "compaction": {
+    "enabled": true,
+    "reserveTokens": 16384,
+    "keepRecentTokens": 20000
+  },
+  "retry": {
+    "enabled": true,
+    "maxRetries": 3,
+    "baseDelayMs": 2000,
+    "provider": {
+      "timeoutMs": 3600000,
+      "maxRetries": 0,
+      "maxRetryDelayMs": 60000
+    }
+  },
+  "steeringMode": "one-at-a-time",
+  "followUpMode": "one-at-a-time",
+  "enableInstallTelemetry": true,
+  "collapseChangelog": true,
+  "doubleEscapeAction": "tree",
+  "lastChangelogVersion": "0.83.0"
+}

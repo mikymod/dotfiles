@@ -5,13 +5,15 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 
 ## Commands
 - `make all` - Install all dotfiles via symlinks
-- `make <target>` - Install specific config (bash, zsh, git, nvim, ghostty, wezterm, zed, hypr)
+- `make <target>` - Install specific config (bash, zsh, git, nvim, ghostty, wezterm, zed, hypr, pi)
+- `make pi` - Install pi coding agent config (global AGENTS.md, settings.json, skills)
 - `./install.ps1` - Install on Windows (PowerShell)
 
 ## Structure
 - `nvim/` - Neovim config (Lua-based with lazy.nvim plugin manager)
 - `hypr/` - Hyprland WM config + Waybar
 - `zed/` - Zed editor settings and keymap
+- `pi/` - Pi coding agent configuration (global AGENTS.md, settings.json, skills)
 - `bashrc`, `zshrc` - Shell configs
 - `gitconfig`, `githelpers` - Git configuration
 - `ghostty_config`, `wezterm.lua` - Terminal emulator configs
