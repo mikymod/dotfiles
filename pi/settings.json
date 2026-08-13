@@ -2,8 +2,8 @@
   "theme": "gruvbox-dark",
   "quietStartup": false,
   "defaultProjectTrust": "always",
-  "defaultProvider": "tesseract-local",
-  "defaultModel": "ds4-flash",
+  "defaultProvider": "deepseek",
+  "defaultModel": "deepseek-v4-flash",
   "defaultThinkingLevel": "medium",
   "hideThinkingBlock": false,
   "compaction": {
