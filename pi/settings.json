@@ -3,8 +3,8 @@
   "quietStartup": false,
   "defaultProjectTrust": "always",
   "defaultProvider": "deepseek",
-  "defaultModel": "deepseek-v4-flash",
-  "defaultThinkingLevel": "medium",
+  "defaultModel": "deepseek-v4-pro",
+  "defaultThinkingLevel": "high",
   "hideThinkingBlock": false,
   "compaction": {
     "enabled": true,
@@ -26,5 +26,8 @@
   "enableInstallTelemetry": true,
   "collapseChangelog": true,
   "doubleEscapeAction": "tree",
-  "lastChangelogVersion": "0.83.0"
+  "lastChangelogVersion": "0.84.2",
+  "packages": [
+    "git:github.com/badlogic/pi-telegram"
+  ]
 }
