@@ -10,6 +10,7 @@
         "clock"
     ],
     "modules-right": [
+        "custom/local-ai",
         "tray",
         "hyprland/language",
         "custom/monitor-layout",
@@ -112,6 +113,13 @@
         "exec": "~/.config/hypr/scripts/monitor-layout-status",
         "interval": 2,
         "on-click": "~/.config/hypr/scripts/toggle-monitor-layout",
+        "tooltip": true
+    },
+    "custom/local-ai": {
+        "return-type": "json",
+        "exec": "/home/mikymod/work/mikymod/omarchy-local-ai/arch/waybar/local-ai.sh",
+        "interval": 5,
+        "on-click": "/home/mikymod/work/mikymod/omarchy-local-ai/arch/bin/local-ai-qs toggle",
         "tooltip": true
     },
     "tray": {

@@ -89,6 +89,32 @@ window#waybar {
     color: #b4befe;
 }
 
+#custom-local-ai {
+    padding: 0 12px;
+    margin: 3px 2px;
+    border-radius: 4px;
+    background-color: rgba(108, 112, 134, 0.2);
+}
+
+#custom-local-ai.idle {
+    color: #6c7086;
+}
+
+#custom-local-ai.busy {
+    color: #89b4fa;
+    background-color: rgba(137, 180, 250, 0.2);
+}
+
+#custom-local-ai.ready {
+    color: #a6e3a1;
+    background-color: rgba(166, 227, 161, 0.2);
+}
+
+#custom-local-ai.failed {
+    color: #f38ba8;
+    background-color: rgba(243, 139, 168, 0.2);
+}
+
 
 tooltip {
     background: rgba(30, 35, 35, 0.85);
