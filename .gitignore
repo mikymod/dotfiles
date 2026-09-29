@@ -1,1 +1,5 @@
 hypr/scripts/.vpn_config*
+.gitignore
+
+# Per-machine feature flags (see hypr/waybar/config.jsonc)
+hypr/waybar/*.enabled

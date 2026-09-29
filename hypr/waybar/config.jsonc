@@ -10,10 +10,10 @@
         "clock"
     ],
     "modules-right": [
-        "custom/local-ai",
         "tray",
         "hyprland/language",
         "custom/monitor-layout",
+        "custom/local-ai",
         "network",
         "pulseaudio",
         "backlight",
@@ -115,9 +115,14 @@
         "on-click": "~/.config/hypr/scripts/toggle-monitor-layout",
         "tooltip": true
     },
+    // Optional widget, left of the network one. It is per-machine, so it is enabled
+    // with an untracked flag file instead of a change to this tracked config:
+    //   touch ~/.config/waybar/local-ai.enabled   # show
+    //   rm    ~/.config/waybar/local-ai.enabled   # hide
     "custom/local-ai": {
         "return-type": "json",
         "exec": "/home/mikymod/work/mikymod/omarchy-local-ai/arch/waybar/local-ai.sh",
+        "exec-if": "test -f ~/.config/waybar/local-ai.enabled",
         "interval": 5,
         "on-click": "/home/mikymod/work/mikymod/omarchy-local-ai/arch/bin/local-ai-qs toggle",
         "tooltip": true
