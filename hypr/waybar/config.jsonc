@@ -1,5 +1,5 @@
 {
-    "output": "eDP-1",
+    // Omit "output" so the bar follows the focused/primary monitor on any machine
     "position": "top",
     "height": 30,
     "spacing": 4,
