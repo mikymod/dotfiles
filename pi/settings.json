@@ -24,7 +24,7 @@
   "enableInstallTelemetry": true,
   "collapseChangelog": true,
   "doubleEscapeAction": "tree",
-  "lastChangelogVersion": "1.0.3",
+  "lastChangelogVersion": "1.1.0",
   "packages": [
     "git:github.com/badlogic/pi-telegram"
   ]
