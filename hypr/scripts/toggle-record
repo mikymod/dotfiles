@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# Toggle screen recording of the focused monitor (wf-recorder).
+#   first press  -> start recording (video + default audio sink)
+#   second press -> stop and save to ~/Videos/Recordings
+set -uo pipefail
+
+PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/hypr-record.pid"
+DIR="$HOME/Videos/Recordings"
+TTL=6000
+
+notify() { notify-send -t "$TTL" -a "hypr-record" "$@" 2>/dev/null || true; }
+
+# --- stop a running recording -------------------------------------------------
+if [[ -f "$PIDFILE" ]]; then
+  pid=$(<"$PIDFILE")
+  if [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null; then
+    kill -INT "$pid" # wf-recorder finalizes the file on SIGINT
+    for _ in {1..100}; do
+      kill -0 "$pid" 2>/dev/null || break
+      sleep 0.1
+    done
+    rm -f "$PIDFILE"
+    notify "󰑋 Recording saved" "$(ls -t "$DIR" 2>/dev/null | head -n 1)"
+    exit 0
+  fi
+  rm -f "$PIDFILE" # stale pidfile
+fi
+
+# --- start a new recording ----------------------------------------------------
+if ! command -v wf-recorder >/dev/null; then
+  notify -u "󰥷 wf-recorder not installed" "sudo pacman -S wf-recorder"
+  exit 1
+fi
+
+mkdir -p "$DIR"
+FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
+
+# Record the monitor that currently has focus, fall back to the first one.
+MONITOR=$(hyprctl monitors -j 2>/dev/null | jq -r '[.[] | select(.focused)][0].name // .[0].name // empty' 2>/dev/null)
+
+ARGS=(-f "$FILE" -c libx264 -r 60)
+[[ -n "$MONITOR" ]] && ARGS+=(-o "$MONITOR")
+
+# Add audio only when a default output sink exists.
+if command -v wpctl >/dev/null && wpctl get-volume @DEFAULT_AUDIO_SINK@ >/dev/null 2>&1; then
+  ARGS+=(-a)
+fi
+
+wf-recorder "${ARGS[@]}" >/dev/null 2>&1 &
+echo $! >"$PIDFILE"
+
+notify "󰑋 Recording started" "${MONITOR:-screen} - press Ctrl+Shift+Print to stop"
