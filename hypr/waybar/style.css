@@ -1,29 +1,31 @@
+/* Gruvbox Material (dark, orange accent) */
+
 * {
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
 }
 
 window#waybar {
-    background-color: rgba(30, 30, 46, 0.9);
-    color: #cdd6f4;
-    border-bottom: 2px solid rgba(100, 100, 150, 0.3);
+    background-color: rgba(40, 40, 40, 0.9);
+    color: #d4be98;
+    border-bottom: 2px solid rgba(124, 111, 100, 0.3);
 }
 
 #workspaces button {
     padding: 0 8px;
-    color: #6c7086;
+    color: #7c6f64;
     background: transparent;
     border-radius: 4px;
     margin: 3px 2px;
 }
 
 #workspaces button.active {
-    color: #89b4fa;
-    background: rgba(137, 180, 250, 0.2);
+    color: #e78a4e;
+    background: rgba(231, 138, 78, 0.2);
 }
 
 #workspaces button:hover {
-    background: rgba(137, 180, 250, 0.1);
+    background: rgba(231, 138, 78, 0.1);
 }
 
 #clock,
@@ -40,83 +42,83 @@ window#waybar {
 }
 
 #battery {
-    background-color: rgba(166, 227, 161, 0.2);
-    color: #a6e3a1;
+    background-color: rgba(169, 182, 101, 0.2);
+    color: #a9b665;
 }
 
 #battery.charging {
-    background-color: rgba(249, 226, 175, 0.2);
-    color: #f9e2af;
+    background-color: rgba(216, 166, 87, 0.2);
+    color: #d8a657;
 }
 
 #battery.warning:not(.charging) {
-    background-color: rgba(250, 179, 135, 0.2);
-    color: #fab387;
+    background-color: rgba(231, 138, 78, 0.2);
+    color: #e78a4e;
 }
 
 #battery.critical:not(.charging) {
-    background-color: rgba(243, 139, 168, 0.3);
-    color: #f38ba8;
+    background-color: rgba(234, 105, 98, 0.3);
+    color: #ea6962;
     animation: blink 0.5s linear infinite alternate;
 }
 
 @keyframes blink {
-    to { background-color: rgba(243, 139, 168, 0.6); }
+    to { background-color: rgba(234, 105, 98, 0.6); }
 }
 
 #network {
-    background-color: rgba(137, 180, 250, 0.2);
-    color: #89b4fa;
+    background-color: rgba(125, 174, 163, 0.2);
+    color: #7daea3;
 }
 
 #pulseaudio {
-    background-color: rgba(203, 166, 247, 0.2);
-    color: #cba6f7;
+    background-color: rgba(211, 134, 155, 0.2);
+    color: #d3869b;
 }
 
 #backlight {
-    background-color: rgba(249, 226, 175, 0.2);
-    color: #f9e2af;
+    background-color: rgba(216, 166, 87, 0.2);
+    color: #d8a657;
 }
 
 #language {
-    color: #ffffff;
-    background-color: #333333;
+    color: #ddc7a1;
+    background-color: #32302f;
 }
 
 #custom-monitor-layout {
-    background-color: rgba(180, 190, 254, 0.2);
-    color: #b4befe;
+    background-color: rgba(137, 180, 130, 0.2);
+    color: #89b482;
 }
 
 #custom-local-ai {
     padding: 0 12px;
     margin: 3px 2px;
     border-radius: 4px;
-    background-color: rgba(108, 112, 134, 0.2);
+    background-color: rgba(146, 131, 116, 0.2);
 }
 
 #custom-local-ai.idle {
-    color: #6c7086;
+    color: #928374;
 }
 
 #custom-local-ai.busy {
-    color: #89b4fa;
-    background-color: rgba(137, 180, 250, 0.2);
+    color: #7daea3;
+    background-color: rgba(125, 174, 163, 0.2);
 }
 
 #custom-local-ai.ready {
-    color: #a6e3a1;
-    background-color: rgba(166, 227, 161, 0.2);
+    color: #a9b665;
+    background-color: rgba(169, 182, 101, 0.2);
 }
 
 #custom-local-ai.failed {
-    color: #f38ba8;
-    background-color: rgba(243, 139, 168, 0.2);
+    color: #ea6962;
+    background-color: rgba(234, 105, 98, 0.2);
 }
 
 
 tooltip {
-    background: rgba(30, 35, 35, 0.85);
+    background: rgba(27, 27, 27, 0.85);
     border-radius: 8px;
 }
