@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-# Toggle screen recording of the focused monitor (wf-recorder).
+# Toggle screen recording (wf-recorder).
 #   first press  -> start recording (video + default audio sink)
 #   second press -> stop and save to ~/Videos/Recordings
+# Options:
+#   --region     -> interactively pick a region/window with slurp first
 set -uo pipefail
+
+REGION=0
+[[ "${1:-}" == "--region" ]] && REGION=1
 
 PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/hypr-record.pid"
 DIR="$HOME/Videos/Recordings"
@@ -39,7 +44,20 @@ FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).mp4"
 MONITOR=$(hyprctl monitors -j 2>/dev/null | jq -r '[.[] | select(.focused)][0].name // .[0].name // empty' 2>/dev/null)
 
 ARGS=(-f "$FILE" -c libx264 -r 60)
-[[ -n "$MONITOR" ]] && ARGS+=(-o "$MONITOR")
+
+LABEL="${MONITOR:-screen}"
+if [[ "$REGION" == 1 ]]; then
+  # Interactive selection: drag a region, or click a window (-d).
+  GEOM=$(slurp -d 2>/dev/null) || true
+  if [[ -z "$GEOM" ]]; then
+    notify "Recording cancelled" "No region selected"
+    exit 0
+  fi
+  ARGS+=(-g "$GEOM")
+  LABEL="region $GEOM"
+else
+  [[ -n "$MONITOR" ]] && ARGS+=(-o "$MONITOR")
+fi
 
 # Add audio only when a default output sink exists.
 if command -v wpctl >/dev/null && wpctl get-volume @DEFAULT_AUDIO_SINK@ >/dev/null 2>&1; then
@@ -49,4 +67,4 @@ fi
 wf-recorder "${ARGS[@]}" >/dev/null 2>&1 &
 echo $! >"$PIDFILE"
 
-notify "󰑋 Recording started" "${MONITOR:-screen} - press Ctrl+Shift+Print to stop"
+notify "󰑋 Recording started" "$LABEL - press Ctrl+Shift+Print to stop"
