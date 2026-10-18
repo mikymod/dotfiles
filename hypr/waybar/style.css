@@ -3,12 +3,14 @@
 * {
     font-family: "JetBrainsMono Nerd Font", monospace;
     font-size: 13px;
+
 }
 
 window#waybar {
     background-color: rgba(40, 40, 40, 0.9);
     color: #d4be98;
     border-bottom: 2px solid rgba(124, 111, 100, 0.3);
+
 }
 
 #workspaces button {
@@ -17,15 +19,18 @@ window#waybar {
     background: transparent;
     border-radius: 4px;
     margin: 3px 2px;
+
 }
 
 #workspaces button.active {
     color: #e78a4e;
     background: rgba(231, 138, 78, 0.2);
+
 }
 
 #workspaces button:hover {
     background: rgba(231, 138, 78, 0.1);
+
 }
 
 #clock,
@@ -39,86 +44,89 @@ window#waybar {
     padding: 0 12px;
     margin: 3px 2px;
     border-radius: 4px;
+
 }
 
 #battery {
-    background-color: rgba(169, 182, 101, 0.2);
     color: #a9b665;
+
 }
 
 #battery.charging {
-    background-color: rgba(216, 166, 87, 0.2);
     color: #d8a657;
+
 }
 
 #battery.warning:not(.charging) {
-    background-color: rgba(231, 138, 78, 0.2);
     color: #e78a4e;
+
 }
 
 #battery.critical:not(.charging) {
-    background-color: rgba(234, 105, 98, 0.3);
     color: #ea6962;
     animation: blink 0.5s linear infinite alternate;
+
 }
 
 @keyframes blink {
-    to { background-color: rgba(234, 105, 98, 0.6); }
+    to { color: rgba(234, 105, 98, 0.35); }
 }
 
 #network {
-    background-color: rgba(125, 174, 163, 0.2);
     color: #7daea3;
+
 }
 
 #pulseaudio {
-    background-color: rgba(211, 134, 155, 0.2);
     color: #d3869b;
+
 }
 
 #backlight {
-    background-color: rgba(216, 166, 87, 0.2);
     color: #d8a657;
+
 }
 
 #language {
     color: #ddc7a1;
-    background-color: #32302f;
+
 }
 
 #custom-monitor-layout {
-    background-color: rgba(137, 180, 130, 0.2);
     color: #89b482;
+
 }
 
 #custom-local-ai {
     padding: 0 12px;
     margin: 3px 2px;
     border-radius: 4px;
-    background-color: rgba(146, 131, 116, 0.2);
+
 }
 
 #custom-local-ai.idle {
     color: #928374;
+
 }
 
 #custom-local-ai.busy {
     color: #7daea3;
-    background-color: rgba(125, 174, 163, 0.2);
+
 }
 
 #custom-local-ai.ready {
     color: #a9b665;
-    background-color: rgba(169, 182, 101, 0.2);
+
 }
 
 #custom-local-ai.failed {
     color: #ea6962;
-    background-color: rgba(234, 105, 98, 0.2);
+
 }
 
 
 tooltip {
     background: rgba(27, 27, 27, 0.85);
     border-radius: 8px;
+
 }
