@@ -1,13 +1,21 @@
 {
   "theme": "gruvbox-dark",
+  "defaultTools": ["+codemode"],
   "quietStartup": false,
   "defaultProjectTrust": "always",
+  "defaultProvider": "halogen",
+  "defaultModel": "halogen-qwen3.8-flash-next",
   "defaultThinkingLevel": "max",
   "hideThinkingBlock": true,
   "compaction": {
     "enabled": true,
     "reserveTokens": 16384,
-    "keepRecentTokens": 20000
+    "keepRecentTokens": 20000,
+    "modelOverrides": {
+      "halogen/halogen-qwen3.8-flash-next": {
+        "reserveTokens": 40960
+      }
+    }
   },
   "retry": {
     "enabled": true,
@@ -26,6 +34,8 @@
   "doubleEscapeAction": "tree",
   "lastChangelogVersion": "1.1.0",
   "packages": [
-    "git:github.com/badlogic/pi-telegram"
-  ]
+    "git:github.com/badlogic/pi-telegram",
+    "npm:remote-pi"
+  ],
+  "deviceId": "fad89eaa-6ea5-45aa-bd25-f62bc156ae28"
 }

@@ -13,7 +13,8 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 - `nvim/` - Neovim config (Lua-based with lazy.nvim plugin manager)
 - `hypr/` - Hyprland WM config + Waybar
 - `zed/` - Zed editor settings and keymap
-- `pi/` - Pi coding agent configuration (global AGENTS.md, settings.json, skills)
+- `skills/` - Agent-agnostic skills (SKILL.md format), symlinked into pi, Codex, Claude Code, opencode and Antigravity via `make agents`
+- `pi/` - Pi coding agent configuration (settings.json, themes); pi is the primary agent
 - `bashrc`, `zshrc` - Shell configs
 - `gitconfig`, `githelpers` - Git configuration
 - `ghostty_config`, `wezterm.lua` - Terminal emulator configs

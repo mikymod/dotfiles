@@ -46,12 +46,36 @@ $(HOME)/.config/waybar:
 
 hypr: $(HOME)/.config/hypr $(HOME)/.config/waybar
 
-.PHONY: pi
+# Agent-agnostic skills: one source in $(SKILLS), symlinked into every coding agent.
+# SKILL.md format is shared by pi, Codex, Claude Code, opencode and Antigravity.
+SKILLS := $(DOTFILE_PATH)/skills
 
+.PHONY: pi codex claude opencode antigravity agents
+
+# pi is the primary coding agent (settings + themes live in pi/)
 pi:
 	mkdir -p $(HOME)/.pi/agent
 	ln -sf $(DOTFILE_PATH)/pi/settings.json $(HOME)/.pi/agent/settings.json
-	ln -sf $(DOTFILE_PATH)/pi/skills $(HOME)/.pi/agent/skills
+	ln -sf $(SKILLS) $(HOME)/.pi/agent/skills
 	ln -sf $(DOTFILE_PATH)/pi/themes $(HOME)/.pi/agent/themes
 
-all: zsh bash git ghostty wezterm nvim zed hypr pi
+codex:
+	mkdir -p $(HOME)/.codex
+	ln -sf $(SKILLS) $(HOME)/.codex/skills
+
+claude:
+	mkdir -p $(HOME)/.claude
+	ln -sf $(SKILLS) $(HOME)/.claude/skills
+
+opencode:
+	mkdir -p $(HOME)/.config/opencode
+	ln -sf $(SKILLS) $(HOME)/.config/opencode/skills
+
+# ~/.gemini/config/skills is the only global path all Antigravity flavours (AGY, CLI, IDE) read
+antigravity:
+	mkdir -p $(HOME)/.gemini/config
+	ln -sf $(SKILLS) $(HOME)/.gemini/config/skills
+
+agents: pi codex claude opencode antigravity
+
+all: zsh bash git ghostty wezterm nvim zed hypr agents
