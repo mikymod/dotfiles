@@ -1,0 +1,4 @@
+{
+  "defaultProvider": "tesseract-local",
+  "defaultModel": "ds4"
+}

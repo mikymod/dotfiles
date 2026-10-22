@@ -1,0 +1,358 @@
+#!/usr/bin/env python3
+"""bscli — a small CLI for the BookStack REST API.
+
+Config (first match wins):
+  $BSCLI_CONFIG, $XDG_CONFIG_HOME/bscli/config.rc, ~/.config/bscli/config.rc
+
+  [bookstack]
+  url = https://wiki.example.com
+  token_id = XXXXXXXX
+  token_secret = YYYYYYYY
+
+Env overrides: BOOKSTACK_URL, BOOKSTACK_TOKEN_ID, BOOKSTACK_TOKEN_SECRET.
+"""
+
+import argparse
+import json
+import os
+import sys
+import urllib.error
+import urllib.parse
+import urllib.request
+from configparser import ConfigParser
+from pathlib import Path
+
+ENTITY_TYPES = ("page", "chapter", "book", "bookshelf")
+
+
+# ---------- config & http ----------
+
+def config_path():
+    for cand in (
+        os.environ.get("BSCLI_CONFIG"),
+        os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "bscli", "config.rc"),
+        os.path.expanduser("~/.config/bscli/config.rc"),
+    ):
+        if cand and Path(cand).is_file():
+            return Path(cand)
+    return None
+
+
+def load_config():
+    url = os.environ.get("BOOKSTACK_URL")
+    tid = os.environ.get("BOOKSTACK_TOKEN_ID")
+    sec = os.environ.get("BOOKSTACK_TOKEN_SECRET")
+    cfg = config_path()
+    if cfg:
+        cp = ConfigParser()
+        cp.read(cfg)
+        s = cp["bookstack"] if cp.has_section("bookstack") else {}
+        url = url or s.get("url")
+        tid = tid or s.get("token_id")
+        sec = sec or s.get("token_secret")
+    if not all([url, tid, sec]):
+        sys.exit("bscli: not configured. Set url/token_id/token_secret in "
+                 "~/.config/bscli/config.rc or BOOKSTACK_URL/BOOKSTACK_TOKEN_ID/BOOKSTACK_TOKEN_SECRET. "
+                 "Create the token in BookStack: Edit Profile -> API Tokens.")
+    return url.rstrip("/"), tid, sec
+
+
+def request(method, path, params=None, body=None, form=None, files=None, raw=False):
+    url, tid, sec = load_config()
+    if params:
+        q = urllib.parse.urlencode(params, doseq=True)
+        path = f"{path}?{q}" if q else path
+    headers = {"Authorization": f"Token {tid}:{sec}"}
+    data = None
+    if body is not None:
+        headers["Content-Type"] = "application/json"
+        data = json.dumps(body).encode()
+    elif form is not None:
+        if files:
+            boundary = "----bscli7hT3q9Zk2"
+            parts = []
+            for k, v in form.items():
+                parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"\r\n\r\n{v}\r\n")
+            for k, (fname, fbytes, ctype) in files.items():
+                parts.append(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{k}\"; "
+                             f"filename=\"{fname}\"\r\nContent-Type: {ctype}\r\n\r\n")
+                data = ("".join(parts)).encode() + fbytes + f"\r\n--{boundary}--\r\n".encode()
+                headers["Content-Type"] = f"multipart/form-data; boundary={boundary}"
+                req = urllib.request.Request(url + "/api/" + path, data=data, method=method, headers=headers)
+                return send(req, raw)
+            data = ("".join(parts) + f"--{boundary}--\r\n").encode()
+            headers["Content-Type"] = f"multipart/form-data; boundary={boundary}"
+        else:
+            headers["Content-Type"] = "application/x-www-form-urlencoded"
+            data = urllib.parse.urlencode(form).encode()
+    req = urllib.request.Request(url + "/api/" + path, data=data, method=method, headers=headers)
+    return send(req, raw)
+
+
+def send(req, raw):
+    try:
+        with urllib.request.urlopen(req) as resp:
+            payload = resp.read()
+    except urllib.error.HTTPError as e:
+        body = e.read().decode(errors="replace")
+        try:
+            body = json.loads(body).get("error", {}).get("message", body)
+        except Exception:
+            pass
+        sys.exit(f"bscli: HTTP {e.code}: {body}")
+    except urllib.error.URLError as e:
+        sys.exit(f"bscli: connection error: {e.reason}")
+    if raw:
+        return payload
+    if not payload:
+        return {}
+    return json.loads(payload)
+
+
+def out(obj, as_json):
+    if as_json:
+        print(json.dumps(obj, indent=2, ensure_ascii=False))
+    return obj
+
+
+def table(rows, cols):
+    if not rows:
+        print("(no results)")
+        return
+    widths = [max(len(str(r.get(c, ""))[:60]) for r in [dict(headers=cols), *rows]) for c in cols]
+    widths = [max(len(c), w) for c, w in zip(cols, widths)]
+    print("  ".join(c.ljust(w) for c, w in zip(cols, widths)))
+    print("  ".join("-" * w for w in widths))
+    for r in rows:
+        print("  ".join(str(r.get(c, ""))[:60].ljust(w) for c, w in zip(cols, widths)))
+
+
+def resolve_book(name_or_id):
+    if str(name_or_id).isdigit():
+        return int(name_or_id)
+    books = request("GET", "books", params={"filter[name]": name_or_id, "count": 100}).get("data", [])
+    if not books:
+        sys.exit(f"bscli: no book matching {name_or_id!r}")
+    if len(books) > 1:
+        sys.exit(f"bscli: {name_or_id!r} matches {len(books)} books; use its id")
+    return books[0]["id"]
+
+
+# ---------- commands ----------
+
+def cmd_ls(a):
+    data = request("GET", a.type + "s", params={
+        "count": a.count, "offset": a.offset,
+        "filter[name]": a.name, "sort": a.sort,
+    }).get("data", [])
+    out(data, a.json)
+    if not a.json:
+        table(data, ["id", "name", "book_id" if a.type in ("page", "chapter") else "updated_at"])
+
+
+def cmd_show(a):
+    out(request("GET", f"{a.type}s/{a.id}"), a.json)
+
+
+def cmd_read(a):
+    p = request("GET", f"pages/{a.id}")
+    if a.json:
+        out(p, True)
+    else:
+        fmt = a.format
+        if fmt == "html":
+            print(p.get("html", ""))
+        elif fmt == "markdown":
+            md = p.get("markdown")
+            if not md:
+                sys.exit("bscli: page has no markdown content (it was written with the WYSIWYG editor); use --format html")
+            print(md)
+        elif fmt == "plaintext":
+            print(request("GET", f"pages/{a.id}/export/plaintext", raw=True).decode())
+
+
+def cmd_search(a):
+    data = request("GET", "search", params={"query": " ".join(a.query), "count": a.count}).get("data", [])
+    out(data, a.json)
+    if not a.json:
+        table(data, ["id", "type", "name", "book_name"])
+
+
+def cmd_create(a):
+    body = {"name": a.name}
+    if a.book is not None:
+        body["book_id"] = resolve_book(a.book)
+    if a.chapter is not None:
+        body["chapter_id"] = resolve_book(a.chapter)
+    if a.file:
+        content = Path(a.file).read_text()
+    elif a.stdin or not sys.stdin.isatty() and not a.content:
+        content = sys.stdin.read()
+    else:
+        content = a.content or ""
+    if a.markdown:
+        body["markdown"] = content
+    else:
+        body["html"] = content
+    if a.tags:
+        body["tags"] = [{"name": n} for n in a.tags]
+    if a.changelog:
+        body["changelog"] = a.changelog
+    res = request("POST", "pages", body=body)
+    out(res, a.json)
+    if not a.json:
+        print(f"created page {res['id']}: {res.get('url', '')}")
+
+
+def cmd_update(a):
+    body = {}
+    if a.name:
+        body["name"] = a.name
+    if a.file or a.stdin:
+        content = sys.stdin.read() if a.stdin else Path(a.file).read_text()
+        body["markdown" if a.markdown else "html"] = content
+    if a.changelog:
+        body["changelog"] = a.changelog
+    if not body:
+        sys.exit("bscli: nothing to update (pass --name, --file or --stdin)")
+    res = request("PUT", f"pages/{a.id}", body=body)
+    out(res, a.json)
+    if not a.json:
+        print(f"updated page {res['id']} (revision {res.get('revision')})")
+
+
+def cmd_mv(a):
+    res = request("PUT", f"pages/{a.id}", body={"book_id": resolve_book(a.book)})
+    out(res, a.json)
+    if not a.json:
+        print(f"moved page {a.id} to book {res.get('book_id')}")
+
+
+def cmd_rm(a):
+    request("DELETE", f"{a.type}s/{a.id}")
+    print(f"deleted {a.type} {a.id}")
+
+
+def cmd_tree(a):
+    book_id = resolve_book(a.book)
+    data = request("GET", f"books/{book_id}").get("contents", {})
+    rows = []
+    chapters = {c["id"]: c["name"] for c in data.get("chapters", [])}
+    for c in sorted(data.get("chapters", []), key=lambda x: (-x.get("priority", 0), x["id"])):
+        rows.append({"type": "chapter", "id": c["id"], "name": c["name"]})
+    for p in sorted(data.get("pages", []), key=lambda x: (-x.get("priority", 0), x["id"])):
+        rows.append({"type": "page", "id": p["id"], "name": ("↳ " + p["name"]) if p.get("chapter_id") in chapters else p["name"]})
+    out(rows, a.json)
+    if not a.json:
+        table(rows, ["type", "id", "name"])
+
+
+def cmd_attach(a):
+    page_id = a.page
+    f = Path(a.file)
+    if not f.is_file():
+        sys.exit(f"bscli: no such file: {f}")
+    res = request("POST", "attachments", form={"name": a.name or f.name, "uploaded_to": str(page_id)},
+                  files={"file": (f.name, f.read_bytes(), "application/octet-stream")})
+    out(res, a.json)
+    if not a.json:
+        print(f"attached {res.get('name')} to page {page_id}")
+
+
+def cmd_users(a):
+    out(request("GET", "users", params={"count": a.count}), a.json)
+
+
+def cmd_raw(a):
+    params = dict(p.split("=", 1) for p in a.param)
+    out(request(a.method, a.path.lstrip("/"), params=params or None), True)
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="bscli", description="BookStack CLI")
+    ap.add_argument("--json", action="store_true", help="raw JSON output")
+    sub = ap.add_subparsers(dest="cmd", required=True)
+
+    def entity(p, types=True):
+        p.add_argument("type", choices=ENTITY_TYPES) if types else None
+
+    p = sub.add_parser("ls", help="list books/chapters/pages/shelves")
+    p.add_argument("type", choices=ENTITY_TYPES)
+    p.add_argument("--name", help="filter by name (partial match)")
+    p.add_argument("--count", type=int, default=100)
+    p.add_argument("--offset", type=int, default=0)
+    p.add_argument("--sort", default="")
+    p.set_defaults(func=cmd_ls)
+
+    p = sub.add_parser("show", help="show one item's metadata (JSON)")
+    p.add_argument("type", choices=ENTITY_TYPES)
+    p.add_argument("id", type=int)
+    p.set_defaults(func=cmd_show)
+
+    p = sub.add_parser("read", help="print a page's content")
+    p.add_argument("id", type=int)
+    p.add_argument("--format", choices=["html", "markdown", "plaintext"], default="markdown")
+    p.set_defaults(func=cmd_read)
+
+    p = sub.add_parser("search", help="full-text search (BookStack search syntax)")
+    p.add_argument("query", nargs="+")
+    p.add_argument("--count", type=int, default=30)
+    p.set_defaults(func=cmd_search)
+
+    p = sub.add_parser("create", help="create a page")
+    p.add_argument("--name", required=True)
+    p.add_argument("--book", help="book id or name (required unless --chapter)")
+    p.add_argument("--chapter", help="chapter id or name")
+    p.add_argument("--content", help="inline content")
+    p.add_argument("--file", help="read content from file")
+    p.add_argument("--stdin", action="store_true", help="read content from stdin")
+    p.add_argument("--markdown", action="store_true", help="send as markdown (default: html)")
+    p.add_argument("--tag", dest="tags", action="append")
+    p.add_argument("--changelog")
+    p.set_defaults(func=cmd_create)
+
+    p = sub.add_parser("update", help="update a page (content and/or name)")
+    p.add_argument("id", type=int)
+    p.add_argument("--name")
+    p.add_argument("--file")
+    p.add_argument("--stdin", action="store_true")
+    p.add_argument("--markdown", action="store_true")
+    p.add_argument("--changelog")
+    p.set_defaults(func=cmd_update)
+
+    p = sub.add_parser("mv", help="move a page to another book")
+    p.add_argument("id", type=int)
+    p.add_argument("--book", required=True)
+    p.set_defaults(func=cmd_mv)
+
+    p = sub.add_parser("rm", help="delete an item (goes to recycle bin)")
+    p.add_argument("type", choices=ENTITY_TYPES)
+    p.add_argument("id", type=int)
+    p.set_defaults(func=cmd_rm)
+
+    p = sub.add_parser("tree", help="list a book's chapters and pages")
+    p.add_argument("book", help="book id or name")
+    p.set_defaults(func=cmd_tree)
+
+    p = sub.add_parser("attach", help="upload a file attachment to a page")
+    p.add_argument("--page", type=int, required=True)
+    p.add_argument("file")
+    p.add_argument("--name")
+    p.set_defaults(func=cmd_attach)
+
+    p = sub.add_parser("users", help="list users")
+    p.add_argument("--count", type=int, default=100)
+    p.set_defaults(func=cmd_users)
+
+    p = sub.add_parser("raw", help="call any endpoint: bscli raw GET search 'query=foo'")
+    p.add_argument("method")
+    p.add_argument("path")
+    p.add_argument("param", nargs="*")
+    p.set_defaults(func=cmd_raw)
+
+    a = ap.parse_args()
+    a.func(a)
+
+
+if __name__ == "__main__":
+    main()
