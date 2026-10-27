@@ -23,7 +23,7 @@ $(HOME)/.config/nvim/init.lua:
 	ln -sf $(DOTFILE_PATH)/nvim/init.lua $(HOME)/.config/nvim/init.lua
 
 $(HOME)/.config/nvim/lua:
-	ln -sf $(DOTFILE_PATH)/nvim/lua $(HOME)/.config/nvim/lua
+	ln -sfn $(DOTFILE_PATH)/nvim/lua $(HOME)/.config/nvim/lua
 
 nvim: $(HOME)/.config/nvim/init.lua $(HOME)/.config/nvim/lua
 
@@ -38,17 +38,23 @@ zed: $(HOME)/.config/zed/settings.json $(HOME)/.config/zed/keymap.json
 
 $(HOME)/.config/hypr:
 	mkdir -p $(HOME)/.config
-	ln -sf $(DOTFILE_PATH)/hypr $(HOME)/.config/hypr
+	ln -sfn $(DOTFILE_PATH)/hypr $(HOME)/.config/hypr
 
 $(HOME)/.config/waybar:
 	mkdir -p $(HOME)/.config
-	ln -sf $(DOTFILE_PATH)/hypr/waybar $(HOME)/.config/waybar
+	ln -sfn $(DOTFILE_PATH)/hypr/waybar $(HOME)/.config/waybar
 
 hypr: $(HOME)/.config/hypr $(HOME)/.config/waybar
 
-# Agent-agnostic skills: one source in $(SKILLS), symlinked into every coding agent.
-# SKILL.md format is shared by pi, Codex, Claude Code, opencode and Antigravity.
+# Skills live in ~/work/mikymod/skills (grouped per organisation). The few still
+# here are linked one by one so both sources can share each agent's skills dir.
+# Delete this block, skills/ and the .gitignore entry once the last skill moves.
 SKILLS := $(DOTFILE_PATH)/skills
+SKILL_NAMES := $(sort $(notdir $(patsubst %/,%,$(dir $(wildcard $(SKILLS)/*/SKILL.md)))))
+
+# $(call link_skills,<agent skills dir>) - each agent dir is a real directory
+# holding one symlink per skill, so several repos can feed the same agent.
+link_skills = if [ -L $(1) ]; then echo "!! $(1) is a symlink; run 'make migrate' in ~/work/mikymod/skills first" >&2; exit 1; fi; mkdir -p $(1); for s in $(SKILL_NAMES); do ln -sfn $(SKILLS)/$$s $(1)/$$s; done
 
 .PHONY: pi codex claude opencode antigravity agents
 
@@ -56,25 +62,25 @@ SKILLS := $(DOTFILE_PATH)/skills
 pi:
 	mkdir -p $(HOME)/.pi/agent
 	ln -sf $(DOTFILE_PATH)/pi/settings.json $(HOME)/.pi/agent/settings.json
-	ln -sf $(SKILLS) $(HOME)/.pi/agent/skills
-	ln -sf $(DOTFILE_PATH)/pi/themes $(HOME)/.pi/agent/themes
+	ln -sfn $(DOTFILE_PATH)/pi/themes $(HOME)/.pi/agent/themes
+	@$(call link_skills,$(HOME)/.pi/agent/skills)
 
 codex:
 	mkdir -p $(HOME)/.codex
-	ln -sf $(SKILLS) $(HOME)/.codex/skills
+	@$(call link_skills,$(HOME)/.codex/skills)
 
 claude:
 	mkdir -p $(HOME)/.claude
-	ln -sf $(SKILLS) $(HOME)/.claude/skills
+	@$(call link_skills,$(HOME)/.claude/skills)
 
 opencode:
 	mkdir -p $(HOME)/.config/opencode
-	ln -sf $(SKILLS) $(HOME)/.config/opencode/skills
+	@$(call link_skills,$(HOME)/.config/opencode/skills)
 
 # ~/.gemini/config/skills is the only global path all Antigravity flavours (AGY, CLI, IDE) read
 antigravity:
 	mkdir -p $(HOME)/.gemini/config
-	ln -sf $(SKILLS) $(HOME)/.gemini/config/skills
+	@$(call link_skills,$(HOME)/.gemini/config/skills)
 
 agents: pi codex claude opencode antigravity
 

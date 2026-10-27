@@ -3,6 +3,3 @@ hypr/scripts/.vpn_config*
 
 # Per-machine feature flags (see hypr/waybar/config.jsonc)
 hypr/waybar/*.enabled
-
-# Claude Code account-synced skills (~/.claude/skills is symlinked here)
-skills/synced/
