@@ -6,14 +6,13 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 ## Commands
 - `make all` - Install all dotfiles via symlinks
 - `make <target>` - Install specific config (bash, zsh, git, nvim, ghostty, wezterm, zed, hypr, pi)
-- `make pi` - Install pi coding agent config (settings.json, themes, skills)
+- `make pi` - Install pi coding agent config (settings.json, themes)
 - `./install.ps1` - Install on Windows (PowerShell)
 
 ## Structure
 - `nvim/` - Neovim config (Lua-based with lazy.nvim plugin manager)
 - `hypr/` - Hyprland WM config + Waybar
 - `zed/` - Zed editor settings and keymap
-- `skills/` - Transitional: leftover skills still to be moved to `~/work/mikymod/skills`, linked into pi, Codex, Claude Code, opencode and Antigravity via `make agents`
 - `pi/` - Pi coding agent configuration (settings.json, themes); pi is the primary agent
 - `bashrc`, `zshrc` - Shell configs
 - `gitconfig`, `githelpers` - Git configuration
