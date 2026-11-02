@@ -31,4 +31,6 @@ if [[ -z "$target_output" || "$target_output" == "null" ]]; then
   exit 1
 fi
 
-hyprctl dispatch movecurrentworkspacetomonitor "$target_output"
+# Hyprland 0.57 evaluates `hyprctl dispatch` arguments as Lua, so the old
+# `dispatch movecurrentworkspacetomonitor <name>` form is a Lua syntax error.
+hyprctl dispatch "hl.workspace.move({ monitor = '$target_output' })"
