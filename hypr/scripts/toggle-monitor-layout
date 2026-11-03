@@ -68,7 +68,7 @@ restore_external_workspaces() {
 while IFS= read -r workspace; do
     [[ -n "$workspace" ]] || continue
     # Hyprland 0.57: dispatch args are Lua; see move-workspace-to-monitor.
-    hyprctl dispatch "hl.workspace.move({ workspace = '$workspace', monitor = '$EXTEND_OUTPUT' })" >/dev/null 2>&1 || true
+    hyprctl dispatch "hl.dsp.workspace.move({ workspace = '$workspace', monitor = '$EXTEND_OUTPUT' })" >/dev/null 2>&1 || true
   done <"$STATE_FILE"
 }
 
@@ -85,7 +85,11 @@ refresh_waybar() {
 }
 
 apply_extend() {
-  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$MONITOR_MODE,auto,1; keyword monitor $EXTEND_OUTPUT,$MONITOR_MODE,auto-right,1"
+  # Hyprland 0.57 dropped hyprlang keywords at runtime: `hyprctl keyword`
+  # returns "unknown request". Monitor rules go through Lua instead.
+  # External display sits above the laptop, centered (matches hyprland.lua).
+  hyprctl eval "hl.monitor({ output = '$PRIMARY_OUTPUT', mode = '$MONITOR_MODE', position = '0x0', scale = 1 })"
+  hyprctl eval "hl.monitor({ output = '$EXTEND_OUTPUT', mode = '$MONITOR_MODE', position = 'auto-center-up', scale = 1 })"
   wait_for_extend_ready || true
   restore_external_workspaces
   refresh_waybar 0.6
@@ -94,7 +98,8 @@ apply_extend() {
 
 apply_mirror() {
   save_external_workspaces
-  hyprctl --batch "keyword monitor $PRIMARY_OUTPUT,$MONITOR_MODE,auto,1; keyword monitor $EXTEND_OUTPUT,$MONITOR_MODE,auto,1,mirror,$PRIMARY_OUTPUT"
+  hyprctl eval "hl.monitor({ output = '$PRIMARY_OUTPUT', mode = '$MONITOR_MODE', position = '0x0', scale = 1 })"
+  hyprctl eval "hl.monitor({ output = '$EXTEND_OUTPUT', mode = '$MONITOR_MODE', position = 'auto', scale = 1, mirror = '$PRIMARY_OUTPUT' })"
   refresh_waybar 0.2
   hyprctl notify 1 1500 "rgb(89b4fa)" "Display mode: Mirror ($EXTEND_OUTPUT -> $PRIMARY_OUTPUT)"
 }

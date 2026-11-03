@@ -36,17 +36,24 @@ hl.env("XDG_SESSION_TYPE", "wayland")
 hl.env("XDG_CURRENT_DESKTOP", "Hyprland")
 hl.env("XDG_SESSION_DESKTOP", "Hyprland")
 
--- Use XCompose file
-hl.env("XCOMPOSEFILE", "~/.XCompose")
-
 -- ==============================================================================
 -- MONITOR
 -- ==============================================================================
--- Fully automatic monitor handling for any connected display.
+-- Laptop panel anchors the layout. It needs an explicit position: Hyprland
+-- places explicit monitors first, then lays out "auto*" ones around them.
+hl.monitor({
+    output   = "eDP-1",
+    mode     = "preferred",
+    position = "0x0",
+    scale    = "1",
+})
+
+-- Any other display sits physically above the laptop, horizontally centered.
+-- Keep in sync with scripts/toggle-monitor-layout (apply_extend).
 hl.monitor({
     output   = "",          -- fallback rule for any monitor without an explicit rule
     mode     = "preferred",
-    position = "auto",
+    position = "auto-center-up",
     scale    = "1",
 })
 
@@ -138,6 +145,9 @@ hl.config({
     misc = {
         disable_hyprland_logo    = true,
         disable_splash_rendering = true,
+        -- Safety net: wake displays on input even if hypridle's on-resume fails.
+        key_press_enables_dpms   = true,
+        mouse_move_enables_dpms  = true,
     },
 
     ecosystem = {
@@ -182,14 +192,14 @@ local localAi    = "/home/mikymod/work/mikymod/omarchy-local-ai/arch/bin/local-a
 
 -- Core
 hl.bind(mod .. " + Return",        hl.dsp.exec_cmd(terminal),            { description = "Open terminal" })
-hl.bind(mod .. " + Q",             hl.dsp.window.kill(),                 { description = "Close active window" })
+hl.bind(mod .. " + Q",             hl.dsp.window.close(),                { description = "Close active window" }) -- window.kill() = SIGKILL
 hl.bind(mod .. " + M",             hl.dsp.exit(),                        { description = "Exit Hyprland" })
 hl.bind(mod .. " + E",             hl.dsp.exec_cmd(fileMgr),             { description = "Open file manager" })
-hl.bind(mod .. " + V",             hl.dsp.window.float(),                { description = "Toggle floating mode" })
+hl.bind(mod .. " + V",             hl.dsp.window.float({ action = "toggle" }), { description = "Toggle floating mode" })
 hl.bind(mod .. " + Space",         hl.dsp.exec_cmd(menu),                { description = "Open application launcher" })
 hl.bind(mod .. " + P",             hl.dsp.window.pseudo(),               { description = "Toggle pseudo-tiling" })
 hl.bind(mod .. " + J",             hl.dsp.layout("togglesplit"),         { description = "Toggle split orientation" })
-hl.bind(mod .. " + F",             hl.dsp.window.fullscreen(),           { description = "Toggle fullscreen" })
+hl.bind(mod .. " + F",             hl.dsp.window.fullscreen({ action = "toggle" }), { description = "Toggle fullscreen" })
 hl.bind(mod .. " + B",             hl.dsp.exec_cmd(browser),             { description = "Open browser" })
 hl.bind(mod .. " + CTRL + A",      hl.dsp.exec_cmd(localAi .. " toggle"),{ description = "Local AI" })
 
@@ -281,9 +291,11 @@ hl.bind(mod .. " + O", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-monitor-la
 -- RULES
 -- ==============================================================================
 
--- Launcher: frosted glass (blur behind the translucent hyprlauncher surface)
+-- Launcher: frosted glass (blur behind the translucent hyprlauncher surface).
+-- ignore_alpha skips blur on pixels with alpha <= value, so it must stay below
+-- the hyprtoolkit background alpha (0xB3 ~ 0.70).
 hl.layer_rule({
     match        = { namespace = "hyprlauncher" },
     blur         = true,
-    ignore_alpha = 0.95,
+    ignore_alpha = 0.5,
 })
