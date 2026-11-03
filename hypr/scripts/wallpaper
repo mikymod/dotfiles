@@ -1,0 +1,108 @@
+#!/usr/bin/env bash
+# Wallpaper via swaybg, remembered across logins.
+#
+#   wallpaper set <image>    show <image> on every display and remember it
+#   wallpaper next | prev    cycle through the wallpapers folder (by file name)
+#   wallpaper random         pick a different random wallpaper
+#   wallpaper restore        show the remembered one (run at login from hyprland.lua)
+#   wallpaper current        print the remembered image path
+#   wallpaper list           print the images in the wallpapers folder
+#   wallpaper dir            print the wallpapers folder
+#
+# Images live in $WALLPAPER_DIR (default ~/Pictures/Wallpapers, not in dotfiles).
+# The choice is a symlink in ~/.local/state/hypr/wallpaper.
+set -uo pipefail
+
+WALL_DIR="${WALLPAPER_DIR:-$HOME/Pictures/Wallpapers}"
+LINK="${XDG_STATE_HOME:-$HOME/.local/state}/hypr/wallpaper"
+
+notify() { notify-send -a wallpaper "$@" 2>/dev/null || true; }
+
+# Images in the folder, sorted by name (formats gdk-pixbuf can decode).
+list() {
+  find -L "$WALL_DIR" -maxdepth 1 -type f \
+    \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.bmp' \) \
+    2>/dev/null | sort
+}
+
+current() { readlink "$LINK" 2>/dev/null; }
+
+# Start a new swaybg before stopping the old one, so the screen never shows the
+# bare background colour in between. swaybg covers displays plugged in later.
+apply() {
+  local img=$1 old new
+  old=$(pgrep -x swaybg)
+  setsid swaybg -m fill -i "$img" >/dev/null 2>&1 &
+  new=$!
+  sleep 0.5
+  if ! kill -0 "$new" 2>/dev/null; then
+    notify "Wallpaper" "swaybg could not show ${img##*/}"
+    return 1
+  fi
+  [[ -n $old ]] && kill $old 2>/dev/null
+  return 0
+}
+
+set_wallpaper() {
+  local img
+  img=$(realpath -e -- "${1:-}" 2>/dev/null) || {
+    echo "wallpaper: no such file: ${1:-}" >&2
+    return 1
+  }
+  apply "$img" || return 1
+  mkdir -p "${LINK%/*}"
+  ln -sfn "$img" "$LINK"
+}
+
+# step +1 | -1: next / previous image after the current one (wraps around).
+step() {
+  local images=() cur i n
+  mapfile -t images < <(list)
+  n=${#images[@]}
+  if ((n == 0)); then
+    notify "Wallpaper" "No images in $WALL_DIR"
+    return 1
+  fi
+  cur=$(current)
+  for ((i = 0; i < n; i++)); do
+    [[ ${images[i]} == "$cur" ]] && break
+  done
+  # Not found (i == n): next starts at the first image, prev at the last.
+  ((i == n)) && i=$(($1 > 0 ? -1 : 0))
+  set_wallpaper "${images[(i + $1 + n) % n]}"
+}
+
+random() {
+  local img
+  img=$(list | grep -vxF -- "$(current)" | shuf -n 1)
+  [[ -n $img ]] || img=$(list | head -n 1)
+  [[ -n $img ]] || {
+    notify "Wallpaper" "No images in $WALL_DIR"
+    return 1
+  }
+  set_wallpaper "$img"
+}
+
+# At login: the remembered wallpaper, else the first image in the folder,
+# else nothing (Hyprland's background colour).
+restore() {
+  local img
+  img=$(current)
+  [[ -f $img ]] || img=$(list | head -n 1)
+  [[ -n $img ]] && set_wallpaper "$img"
+}
+
+case "${1:-}" in
+  set) set_wallpaper "${2:-}" ;;
+  next) step 1 ;;
+  prev) step -1 ;;
+  random) random ;;
+  restore) restore ;;
+  current) current ;;
+  list) list ;;
+  dir) echo "$WALL_DIR" ;;
+  *)
+    sed -n '4,10p' "$0" | sed 's/^# \{0,1\}//' >&2
+    exit 2
+    ;;
+esac

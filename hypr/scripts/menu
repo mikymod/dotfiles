@@ -1,0 +1,342 @@
+#!/usr/bin/env bash
+# Omarchy-style menus built on hyprlauncher's dmenu mode (hyprlauncher -m).
+#
+#   menu [root]       main menu, links to everything below
+#   menu system       lock, suspend, log out, reboot, shut down
+#   menu capture      screenshots and screen recording
+#   menu toggles      idle lock, Waybar, mirror/extend displays
+#   menu keybindings  every bind with a description; Enter runs it
+#   menu clipboard    cliphist history; Enter copies the entry
+#   menu emoji        emoji from hypr/emoji.txt, recent first; Enter copies it
+#   menu symbols      symbols from hypr/symbols.txt, recent first; Enter copies it
+#   menu wallpaper    next / random / pick an image (scripts/wallpaper)
+#   menu calc        hyprlauncher's math finder (Enter copies the result)
+#   menu do <action>  run one action directly (see action() below)
+#   menu desktop-entries [dir]  write app-launcher entries for the actions
+#
+# The keybindings menu relies on hyprland.lua recording each bind's dispatcher
+# in the global Lua table `menu_binds`, keyed by description.
+set -uo pipefail
+
+SCRIPTS="$HOME/.config/hypr/scripts"
+WALLPAPER="$SCRIPTS/wallpaper"
+RECORD_PIDFILE="${XDG_RUNTIME_DIR:-/tmp}/hypr-record.pid" # written by toggle-record
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/hypr-menu" # recently used emoji/symbols
+EMOJI_FILE="$HOME/.config/hypr/emoji.txt"
+SYMBOLS_FILE="$HOME/.config/hypr/symbols.txt"
+RECENT_MAX=24
+
+# Nerd Font glyphs (same icons as Omarchy's menu).
+I_APPS=$'\U000F003B'      # 󰀻
+I_CLIPBOARD=$'\U000F0147' # 󰅇
+I_EMOJI=$'\uF118'         # 
+I_SYMBOLS=$'\U000003A9'   # Ω (plain Greek omega)
+I_CALC=$'\U000F00EC'      # 󰃬
+I_CAPTURE=$'\uF030'       # 
+I_RECORD=$'\uF03D'        # 
+I_STOP=$'\uF04D'          # 
+I_DISPLAY=$'\U000F0379'   # 󰍹
+I_DISPLAYS=$'\U000F037A'  # 󰍺
+I_TOGGLES=$'\U000F050E'   # 󰔎
+I_IDLE=$'\uEF59'          # 
+I_BAR=$'\U000F035C'       # 󰍜
+I_KEYS=$'\uF11C'          # 
+I_SYSTEM=$'\uF011'        # 
+I_LOCK=$'\uF023'          # 
+I_SUSPEND=$'\U000F04B2'   # 󰒲
+I_LOGOUT=$'\U000F0343'    # 󰍃
+I_REBOOT=$'\U000F0709'    # 󰜉
+I_POWEROFF=$'\U000F0425'  # 󰐥
+I_WALLPAPER=$'\U000F0E09' # 󰸉
+I_IMAGE=$'\U000F02E9'     # 󰋩
+I_NEXT=$'\U000F04AD'      # 󰒭
+I_SHUFFLE=$'\U000F049D'   # 󰒝
+I_FOLDER=$'\U000F024F'    # 󰉏
+
+notify() { notify-send -a menu "$@" 2>/dev/null || true; }
+
+# --- hyprlauncher plumbing ----------------------------------------------------
+
+# Socket path hyprlauncher derives from $WAYLAND_DISPLAY (FNV-1a 64-bit hash,
+# see src/socket/SocketPath.cpp). Bash arithmetic wraps like uint64.
+socket_path() {
+  local h=-3750763034362895579 i c # 14695981039346656037 as signed int64
+  for ((i = 0; i < ${#WAYLAND_DISPLAY}; i++)); do
+    printf -v c '%d' "'${WAYLAND_DISPLAY:i:1}"
+    h=$(((h ^ c) * 1099511628211))
+  done
+  printf '%s/.hyprlauncher-%016x.sock' "$XDG_RUNTIME_DIR" "$h"
+}
+
+# `hyprlauncher -m` prints the selection only when it hands the list to a
+# running daemon. Started cold it becomes the daemon and never prints, so make
+# sure one is up (it is autostarted in hyprland.lua; this covers restarts).
+ensure_daemon() {
+  pgrep -x hyprlauncher >/dev/null && return 0
+  local sock
+  sock=$(socket_path)
+  rm -f "$sock" # stale: no daemon owns it
+  hyprctl dispatch 'hl.dsp.exec_cmd("hyprlauncher -d")' >/dev/null
+  for _ in {1..50}; do
+    [[ -S $sock ]] && return 0
+    sleep 0.1
+  done
+  notify "Menu" "hyprlauncher daemon did not start"
+  return 1
+}
+
+# pick: options on stdin (one per line), prints the chosen line.
+# Fails on Esc: hyprlauncher then prints "Exited without selection".
+pick() {
+  local choice
+  ensure_daemon || return 1
+  choice=$(hyprlauncher --quiet -m) || return 1
+  [[ -n $choice && $choice != "Exited without selection" ]] || return 1
+  printf '%s\n' "$choice"
+}
+
+# run_menu "Label|command" ...: show the labels, eval the chosen command.
+run_menu() {
+  local -A commands=()
+  local labels=() item choice
+  for item in "$@"; do
+    labels+=("${item%%|*}")
+    commands[${item%%|*}]=${item#*|}
+  done
+  choice=$(printf '%s\n' "${labels[@]}" | pick) || return 0
+  [[ -n ${commands[$choice]:-} ]] || return 0 # e.g. a selection meant for another picker
+  eval "${commands[$choice]}"
+}
+
+# --- menus --------------------------------------------------------------------
+
+menu_root() {
+  run_menu \
+    "$I_APPS  Apps|hyprlauncher -f desktop" \
+    "$I_CLIPBOARD  Clipboard|menu_clipboard" \
+    "$I_EMOJI  Emoji|menu_emoji" \
+    "$I_SYMBOLS  Symbols|menu_symbols" \
+    "$I_CALC  Calculator|hyprlauncher -f math" \
+    "$I_CAPTURE  Capture|menu_capture" \
+    "$I_TOGGLES  Toggles|menu_toggles" \
+    "$I_WALLPAPER  Wallpaper|menu_wallpaper" \
+    "$I_KEYS  Keybindings|menu_keybindings" \
+    "$I_SYSTEM  System|menu_system"
+}
+
+menu_system() {
+  run_menu \
+    "$I_LOCK  Lock|action lock" \
+    "$I_SUSPEND  Suspend|action suspend" \
+    "$I_LOGOUT  Log out|action logout" \
+    "$I_REBOOT  Reboot|action reboot" \
+    "$I_POWEROFF  Shut down|action poweroff"
+}
+
+menu_capture() {
+  local items=(
+    "$I_CAPTURE  Screenshot area|action screenshot-area"
+    "$I_DISPLAY  Screenshot display|action screenshot-display"
+    "$I_DISPLAYS  Screenshot all displays|action screenshot-all"
+  )
+  if recording; then
+    items+=("$I_STOP  Stop recording|action record")
+  else
+    items+=(
+      "$I_RECORD  Record display|action record"
+      "$I_RECORD  Record region|action record-region"
+    )
+  fi
+  run_menu "${items[@]}"
+}
+
+menu_toggles() {
+  local idle="$I_IDLE  Allow sleep (resume idle dim/lock)"
+  idle_lock_on && idle="$I_IDLE  Stay awake (pause idle dim/lock)"
+  run_menu \
+    "$idle|action idle-toggle" \
+    "$I_BAR  Show / hide Waybar|action waybar-toggle" \
+    "$I_DISPLAY  Mirror / extend displays|action displays-toggle"
+}
+
+menu_wallpaper() {
+  local items=(
+    "$I_NEXT  Next wallpaper|action wallpaper-next"
+    "$I_SHUFFLE  Random wallpaper|action wallpaper-random"
+  )
+  local img name cur
+  cur=$("$WALLPAPER" current)
+  while IFS= read -r img; do
+    name=${img##*/}
+    name=${name%.*}
+    [[ $img == "$cur" ]] && name+="  ✓"
+    items+=("$I_IMAGE  $name|\"\$WALLPAPER\" set $(printf '%q' "$img")")
+  done < <("$WALLPAPER" list)
+  items+=("$I_FOLDER  Open wallpapers folder|action wallpaper-folder")
+  run_menu "${items[@]}"
+}
+
+# --- actions ------------------------------------------------------------------
+# Every leaf command lives here once: the submenus above and the app-launcher
+# entries below both run them (`menu do <action>`).
+
+recording() {
+  local pid
+  pid=$(cat "$RECORD_PIDFILE" 2>/dev/null) && [[ -n $pid ]] && kill -0 "$pid" 2>/dev/null
+}
+
+idle_lock_on() { pgrep -x hypridle >/dev/null; }
+
+action() {
+  case ${1:-} in
+    lock) pidof hyprlock || hyprlock ;;
+    suspend) systemctl suspend ;;
+    logout) hyprctl dispatch 'hl.dsp.exit()' >/dev/null ;;
+    reboot) systemctl reboot ;;
+    poweroff) systemctl poweroff ;;
+    # The short sleeps keep the closing launcher out of the capture.
+    screenshot-area) "$SCRIPTS/screenshot" area ;;
+    screenshot-display) sleep 0.3 && "$SCRIPTS/screenshot" display ;;
+    screenshot-all) sleep 0.3 && "$SCRIPTS/screenshot" all ;;
+    record) recording || sleep 0.3; "$SCRIPTS/toggle-record" ;; # start (focused display) or stop
+    record-region) "$SCRIPTS/toggle-record" --region ;;
+    idle-toggle)
+      if idle_lock_on; then
+        pkill -x hypridle && notify "Idle lock paused" "The screen will not dim, turn off or lock"
+      else
+        hyprctl dispatch 'hl.dsp.exec_cmd("hypridle")' >/dev/null && notify "Idle lock resumed"
+      fi
+      ;;
+    waybar-toggle) pkill -SIGUSR1 -x waybar || hyprctl dispatch 'hl.dsp.exec_cmd("waybar")' >/dev/null ;;
+    displays-toggle) "$SCRIPTS/toggle-monitor-layout" ;;
+    wallpaper-next) "$WALLPAPER" next ;;
+    wallpaper-random) "$WALLPAPER" random ;;
+    wallpaper-folder)
+      local dir
+      dir=$("$WALLPAPER" dir)
+      mkdir -p "$dir" && xdg-open "$dir"
+      ;;
+    *)
+      echo "menu: unknown action '${1:-}'" >&2
+      return 2
+      ;;
+  esac
+}
+
+# --- app-launcher entries -----------------------------------------------------
+# "Name|menu arguments|icon|keywords": each becomes a .desktop file, so typing in
+# the app launcher (Super+Space) finds menu actions next to apps, with icons and
+# frequency ranking. Icons are names from Papirus (hyprtoolkit.conf icon_theme),
+# checked to render well in Papirus-Dark. Regenerated at login (hyprland.lua autostart).
+LAUNCHER_ENTRIES=(
+  "Main Menu|root|applications-system|menu;settings;omarchy;"
+  "Lock Screen|do lock|system-lock-screen|lock;hyprlock;"
+  "Suspend|do suspend|weather-clear-night|sleep;suspend;"
+  "Log Out|do logout|system-log-out|logout;exit;quit;hyprland;session;"
+  "Reboot|do reboot|system-reboot|restart;reboot;"
+  "Shut Down|do poweroff|system-shutdown|shutdown;poweroff;power;off;"
+  "Screenshot Area|do screenshot-area|applets-screenshooter|screenshot;capture;region;grim;"
+  "Screenshot Display|do screenshot-display|applets-screenshooter|screenshot;capture;monitor;screen;"
+  "Screenshot All Displays|do screenshot-all|applets-screenshooter|screenshot;capture;screen;"
+  "Screen Recording (Start/Stop)|do record|simplescreenrecorder|record;video;screencast;wf-recorder;"
+  "Record Region|do record-region|simplescreenrecorder|record;video;screencast;region;"
+  "Clipboard History|clipboard|edit-paste|clipboard;paste;cliphist;history;copy;"
+  "Emoji|emoji|face-smile-big|emoji;emoticon;smiley;"
+  "Symbols|symbols|accessories-character-map|symbols;unicode;characters;arrows;math;accents;"
+  "Wallpaper|wallpaper|preferences-desktop-wallpaper|wallpaper;background;desktop;"
+  "Next Wallpaper|do wallpaper-next|preferences-desktop-wallpaper|wallpaper;background;next;"
+  "Quick Calculator|calc|accessories-calculator|calc;calculator;math;"
+  "Keybindings|keybindings|preferences-desktop-keyboard-shortcuts|keys;keyboard;shortcuts;binds;cheatsheet;help;"
+  "Idle Lock On/Off (Stay Awake)|do idle-toggle|preferences-desktop-screensaver|idle;caffeine;awake;sleep;dim;hypridle;"
+  "Show/Hide Waybar|do waybar-toggle|preferences-system-windows|waybar;bar;panel;"
+  "Mirror/Extend Displays|do displays-toggle|video-display|monitor;display;mirror;extend;projector;"
+)
+
+# desktop_entries [dir]: (re)write the entries as hypr-menu-*.desktop. The default
+# dir is the user applications dir, which hyprlauncher watches (inotify).
+desktop_entries() {
+  local dir=${1:-${XDG_DATA_HOME:-$HOME/.local/share}/applications}
+  local entry name args icon keywords slug
+  mkdir -p "$dir"
+  rm -f "$dir"/hypr-menu-*.desktop
+  for entry in "${LAUNCHER_ENTRIES[@]}"; do
+    IFS='|' read -r name args icon keywords <<<"$entry"
+    slug=${args#do }
+    cat >"$dir/hypr-menu-$slug.desktop" <<EOF
+[Desktop Entry]
+Type=Application
+Name=$name
+Comment=Hyprland menu action (generated by $SCRIPTS/menu desktop-entries)
+Icon=$icon
+Keywords=$keywords
+Exec=$SCRIPTS/menu $args
+# Listed by hyprlauncher (which ignores OnlyShowIn) but hidden from GTK app pickers.
+OnlyShowIn=X-HyprLauncher;
+EOF
+  done
+}
+
+menu_keybindings() {
+  local -A description_of=()
+  local lines=() keys desc line
+  while IFS=$'\t' read -r keys desc; do
+    printf -v line '%-28s %s' "$keys" "$desc"
+    lines+=("$line")
+    description_of[$line]=$desc
+  done < <(hyprctl binds -j | jq -r '
+    def mods: . as $m
+      | [[64, "SUPER"], [4, "CTRL"], [8, "ALT"], [1, "SHIFT"]]
+      | map(select((($m / .[0]) | floor) % 2 == 1) | .[1]);
+    .[] | select(.has_description)
+        | "\((.modmask | mods) + [.key] | join(" + "))\t\(.description)"')
+
+  line=$(printf '%s\n' "${lines[@]}" | pick) || return 0
+  desc=${description_of[$line]:-}
+  [[ -n $desc ]] || return 0
+  # Lua long string: no quoting issues with the description text.
+  hyprctl dispatch "menu_binds[ [==[$desc]==] ]" >/dev/null ||
+    notify "Keybindings" "Could not run: $desc"
+}
+
+menu_clipboard() {
+  local entry
+  # Some entries contain NUL bytes; decoding only needs the leading id.
+  entry=$(cliphist list | tr -d '\0' | pick) || return 0
+  cliphist decode <<<"$entry" | wl-copy
+}
+
+# pick_char <list> <recent>: pick from a "<char>  <description>" list, with
+# recently used lines first, and copy the char.
+pick_char() {
+  local list=$1 recent=$2 line char
+  line=$({ cat "$recent" 2>/dev/null; grep -v '^#' "$list"; } | awk '!seen[$0]++' | pick) || return 0
+  char=${line%%  *}
+  printf '%s' "$char" | wl-copy
+
+  mkdir -p "${recent%/*}"
+  { printf '%s\n' "$line"; grep -vxF -- "$line" "$recent" 2>/dev/null || true; } |
+    head -n "$RECENT_MAX" >"$recent.tmp" && mv "$recent.tmp" "$recent"
+  notify "$char copied" "Paste with Ctrl+V"
+}
+
+menu_emoji() { pick_char "$EMOJI_FILE" "$STATE_DIR/emoji-recent"; }
+menu_symbols() { pick_char "$SYMBOLS_FILE" "$STATE_DIR/symbols-recent"; }
+
+case "${1:-root}" in
+  root) menu_root ;;
+  system) menu_system ;;
+  capture) menu_capture ;;
+  toggles) menu_toggles ;;
+  keybindings) menu_keybindings ;;
+  clipboard) menu_clipboard ;;
+  emoji) menu_emoji ;;
+  symbols) menu_symbols ;;
+  wallpaper) menu_wallpaper ;;
+  calc) exec hyprlauncher -f math ;;
+  do) action "${2:-}" ;;
+  desktop-entries) desktop_entries "${2:-}" ;;
+  *)
+    sed -n '4,15p' "$0" | sed 's/^# \{0,1\}//' >&2
+    exit 2
+    ;;
+esac

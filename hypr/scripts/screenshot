@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Take a screenshot, save it to ~/Pictures/Screenshots and copy it to the clipboard.
+#   screenshot [area]  -> select a region with slurp (Esc cancels)
+#   screenshot display -> the focused display
+#   screenshot all     -> every display
+set -uo pipefail
+
+DIR="$HOME/Pictures/Screenshots"
+FILE="$DIR/$(date +%Y-%m-%d_%H-%M-%S).png"
+mkdir -p "$DIR"
+
+case "${1:-area}" in
+  area)
+    GEOM=$(slurp) || exit 0
+    grim -g "$GEOM" "$FILE" || exit 1
+    ;;
+  display)
+    MONITOR=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+    grim -o "$MONITOR" "$FILE" || exit 1
+    ;;
+  all)
+    grim "$FILE" || exit 1
+    ;;
+  *)
+    echo "usage: $0 [area|display|all]" >&2
+    exit 2
+    ;;
+esac
+
+wl-copy <"$FILE"
+notify-send -a screenshot -i "$FILE" "Screenshot copied" "${FILE##*/}" 2>/dev/null || true

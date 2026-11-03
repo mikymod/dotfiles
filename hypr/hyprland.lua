@@ -61,9 +61,13 @@ hl.monitor({
 -- AUTOSTART
 -- ==============================================================================
 hl.on("hyprland.start", function()
+    hl.exec_cmd("~/.config/hypr/scripts/wallpaper restore") -- swaybg, last chosen image
     hl.exec_cmd("waybar")
     hl.exec_cmd("mako")
     hl.exec_cmd("hypridle")
+    hl.exec_cmd("hyprlauncher -d") -- daemon: instant launcher, required by scripts/menu
+    -- Menu actions (lock, screenshot, keybindings...) as searchable launcher entries
+    hl.exec_cmd("~/.config/hypr/scripts/menu desktop-entries")
     hl.exec_cmd("wl-paste --type text --watch cliphist store")
     hl.exec_cmd("wl-paste --type image --watch cliphist store")
     hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
@@ -183,11 +187,29 @@ hl.animation({ leaf = "specialWorkspace", enabled = true,  speed = 4,    bezier 
 -- ==============================================================================
 -- KEYBINDINGS
 -- ==============================================================================
+
+-- Record every described bind's dispatcher in the global `menu_binds` table so
+-- the keybindings menu (scripts/menu keybindings) can run it by description:
+--   hyprctl dispatch 'menu_binds["Close active window"]'
+-- Must come before the first hl.bind call.
+menu_binds = {}
+do
+    local bind = hl.bind
+    hl.bind = function(keys, dispatcher, opts)
+        if opts and opts.description then
+            menu_binds[opts.description] = dispatcher
+        end
+        return bind(keys, dispatcher, opts)
+    end
+end
+
 local mod        = "SUPER"
 local terminal   = "ghostty"
 local browser    = "chromium"
 local fileMgr    = "nautilus"
-local menu       = "hyprlauncher"
+local launcher   = "hyprlauncher"
+local menu       = "~/.config/hypr/scripts/menu"
+local scripts    = "~/.config/hypr/scripts/"
 local localAi    = "/home/mikymod/work/mikymod/omarchy-local-ai/arch/bin/local-ai-qs"
 
 -- Core
@@ -196,7 +218,7 @@ hl.bind(mod .. " + Q",             hl.dsp.window.close(),                { descr
 hl.bind(mod .. " + M",             hl.dsp.exit(),                        { description = "Exit Hyprland" })
 hl.bind(mod .. " + E",             hl.dsp.exec_cmd(fileMgr),             { description = "Open file manager" })
 hl.bind(mod .. " + V",             hl.dsp.window.float({ action = "toggle" }), { description = "Toggle floating mode" })
-hl.bind(mod .. " + Space",         hl.dsp.exec_cmd(menu),                { description = "Open application launcher" })
+hl.bind(mod .. " + Space",         hl.dsp.exec_cmd(launcher .. " -t"),   { description = "Toggle application launcher" })
 hl.bind(mod .. " + P",             hl.dsp.window.pseudo(),               { description = "Toggle pseudo-tiling" })
 hl.bind(mod .. " + J",             hl.dsp.layout("togglesplit"),         { description = "Toggle split orientation" })
 hl.bind(mod .. " + F",             hl.dsp.window.fullscreen({ action = "toggle" }), { description = "Toggle fullscreen" })
@@ -256,14 +278,9 @@ hl.bind("XF86MonBrightnessUp",    hl.dsp.exec_cmd("brightnessctl set 5%+"),
 hl.bind("XF86MonBrightnessDown",  hl.dsp.exec_cmd("brightnessctl set 5%-"),
     { locked = true, repeating = true, description = "Decrease brightness" })
 
--- Screenshots
-local shotCmd = function(full)
-    return "sh -c 'mkdir -p ~/Pictures/Screenshots && FILE=~/Pictures/Screenshots/$(date +%Y-%m-%d_%H-%M-%S).png; "
-        .. (full and 'grim "$FILE"' or 'grim -g "$(slurp)" "$FILE"')
-        .. [[ && wl-copy < "$FILE"']] --]]
-end
-hl.bind("Print",          hl.dsp.exec_cmd(shotCmd(false)), { description = "Screenshot selected area" })
-hl.bind("SHIFT + Print",  hl.dsp.exec_cmd(shotCmd(true)),  { description = "Screenshot entire screen" })
+-- Screenshots (saved to ~/Pictures/Screenshots and copied to the clipboard)
+hl.bind("Print",          hl.dsp.exec_cmd(scripts .. "screenshot area"), { description = "Screenshot selected area" })
+hl.bind("SHIFT + Print",  hl.dsp.exec_cmd(scripts .. "screenshot all"),  { description = "Screenshot entire screen" })
 
 -- Screen recording (toggle: press again to stop and save)
 hl.bind("CTRL + SHIFT + Print",      hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-record"),
@@ -271,9 +288,17 @@ hl.bind("CTRL + SHIFT + Print",      hl.dsp.exec_cmd("~/.config/hypr/scripts/tog
 hl.bind("CTRL + SHIFT + ALT + Print", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-record --region"),
     { description = "Toggle region recording (slurp)" })
 
--- Clipboard history
-hl.bind(mod .. " + SHIFT + V", hl.dsp.exec_cmd("cliphist list | hyprlauncher -m | cliphist decode | wl-copy"),
-    { description = "Open clipboard history" })
+-- Menus (scripts/menu, Omarchy-style pickers on hyprlauncher)
+hl.bind(mod .. " + ALT + Space", hl.dsp.exec_cmd(menu),                  { description = "Open main menu" })
+hl.bind(mod .. " + Escape",      hl.dsp.exec_cmd(menu .. " system"),     { description = "System menu (lock, suspend, power)" })
+hl.bind(mod .. " + CTRL + C",    hl.dsp.exec_cmd(menu .. " capture"),    { description = "Capture menu (screenshots, recording)" })
+hl.bind(mod .. " + CTRL + T",    hl.dsp.exec_cmd(menu .. " toggles"),    { description = "Toggles menu (idle lock, Waybar, displays)" })
+hl.bind(mod .. " + CTRL + Space",hl.dsp.exec_cmd(menu .. " wallpaper"),  { description = "Wallpaper menu (next, random, pick)" })
+hl.bind(mod .. " + slash",       hl.dsp.exec_cmd(menu .. " keybindings"),{ description = "Keybindings (Enter runs the bind)" })
+hl.bind(mod .. " + SHIFT + V",   hl.dsp.exec_cmd(menu .. " clipboard"),  { description = "Open clipboard history" })
+hl.bind(mod .. " + period",      hl.dsp.exec_cmd(menu .. " emoji"),      { description = "Emoji picker (copies to clipboard)" })
+hl.bind(mod .. " + SHIFT + period", hl.dsp.exec_cmd(menu .. " symbols"), { description = "Symbol picker: arrows, math, accents... (copies)" })
+hl.bind(mod .. " + equal",       hl.dsp.exec_cmd(launcher .. " -f math"),    { description = "Calculator (Enter copies the result)" })
 
 -- Battery status
 hl.bind(mod .. " + SHIFT + B",
@@ -293,9 +318,12 @@ hl.bind(mod .. " + O", hl.dsp.exec_cmd("~/.config/hypr/scripts/toggle-monitor-la
 
 -- Launcher: frosted glass (blur behind the translucent hyprlauncher surface).
 -- ignore_alpha skips blur on pixels with alpha <= value, so it must stay below
--- the hyprtoolkit background alpha (0xB3 ~ 0.70).
+-- the hyprtoolkit background alpha (0xB3 ~ 0.70). dim_around darkens the rest
+-- of the screen while the launcher / menus are open.
 hl.layer_rule({
     match        = { namespace = "hyprlauncher" },
     blur         = true,
     ignore_alpha = 0.5,
+    dim_around   = true,
+    animation    = "popin 90%",
 })
