@@ -327,3 +327,12 @@ hl.layer_rule({
     dim_around   = true,
     animation    = "popin 90%",
 })
+
+-- Image viewer: centred floating window instead of a tile (as in Omarchy).
+hl.window_rule({
+    name   = "float-imv",
+    match  = { class = "^imv$" },
+    float  = true,
+    center = true,
+    size   = { 875, 600 },
+})

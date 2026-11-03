@@ -1,0 +1,28 @@
+# imv: default image viewer (like Omarchy). Installed by `make imv`, which also
+# makes imv the default app for images. Reference: man 5 imv
+#
+# This file replaces /etc/imv_config, but imv's built-in binds stay active:
+#   ←/→ or [ ]  prev / next     i/o or ↑/↓  zoom      a  actual size
+#   h j k l     pan             f  fullscreen         r  reset view
+#   Ctrl+r      rotate (view)   d  overlay            t  slideshow (+1 s)
+#   x           close image     q  quit
+
+[options]
+background = 1b1b1b
+overlay_font = JetBrainsMono Nerd Font:12
+overlay_text_color = ebdbb2
+overlay_background_color = 282828
+
+[binds]
+# Copy the image to the clipboard
+<Ctrl+c> = exec wl-copy < "$imv_current_file"
+
+# Set as wallpaper (hypr/scripts/wallpaper, remembered across logins)
+<Shift+W> = exec ~/.config/hypr/scripts/wallpaper set "$imv_current_file" && notify-send -a wallpaper "Wallpaper set" "${imv_current_file##*/}"
+
+# Print the image
+<Ctrl+p> = exec lp "$imv_current_file"
+
+# Move the image to the Trash (recoverable) and quit / show the next one
+<Ctrl+x> = exec gio trash -- "$imv_current_file"; quit
+<Ctrl+Shift+X> = exec gio trash -- "$imv_current_file"; close

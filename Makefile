@@ -46,6 +46,19 @@ $(HOME)/.config/waybar:
 
 hypr: $(HOME)/.config/hypr $(HOME)/.config/waybar
 
+# imv is the default image viewer. mimeapps.list is not tracked (it holds
+# machine-specific entries), so the defaults are set with xdg-mime instead.
+IMAGE_TYPES := image/png image/jpeg image/gif image/webp image/bmp image/tiff
+
+$(HOME)/.config/imv/config:
+	mkdir -p $(HOME)/.config/imv
+	ln -sf $(DOTFILE_PATH)/imv_config $(HOME)/.config/imv/config
+
+.PHONY: imv
+
+imv: $(HOME)/.config/imv/config
+	xdg-mime default imv.desktop $(IMAGE_TYPES)
+
 # pi is the primary coding agent (settings + themes live in pi/).
 # Skills are not part of this repo: they live in ~/work/mikymod/skills, grouped per
 # organisation, and that repo's own Makefile links them into every agent.
@@ -56,4 +69,4 @@ pi:
 	ln -sf $(DOTFILE_PATH)/pi/settings.json $(HOME)/.pi/agent/settings.json
 	ln -sfn $(DOTFILE_PATH)/pi/themes $(HOME)/.pi/agent/themes
 
-all: zsh bash git ghostty wezterm nvim zed hypr pi
+all: zsh bash git ghostty wezterm nvim zed hypr imv pi

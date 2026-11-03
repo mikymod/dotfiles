@@ -5,7 +5,8 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 
 ## Commands
 - `make all` - Install all dotfiles via symlinks
-- `make <target>` - Install specific config (bash, zsh, git, nvim, ghostty, wezterm, zed, hypr, pi)
+- `make <target>` - Install specific config (bash, zsh, git, nvim, ghostty, wezterm, zed, hypr, imv, pi)
+- `make imv` - Link imv config and make imv the default image viewer (xdg-mime)
 - `make pi` - Install pi coding agent config (settings.json, themes)
 - `./install.ps1` - Install on Windows (PowerShell)
 
@@ -17,6 +18,7 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 - `bashrc`, `zshrc` - Shell configs
 - `gitconfig`, `githelpers` - Git configuration
 - `ghostty_config`, `wezterm.lua` - Terminal emulator configs
+- `imv_config` - imv image viewer config (keybinds: copy, set wallpaper, trash)
 
 ## Conventions
 - Configs are symlinked to `~/.config/` or `~/` via Makefile
