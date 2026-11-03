@@ -20,6 +20,11 @@ overlay_background_color = 282828
 # Set as wallpaper (hypr/scripts/wallpaper, remembered across logins)
 <Shift+W> = exec ~/.config/hypr/scripts/wallpaper set "$imv_current_file" && notify-send -a wallpaper "Wallpaper set" "${imv_current_file##*/}"
 
+# Edit the image and quit the viewer: Pinta for quick edits (crop, annotate,
+# resize), Krita for painting / heavier work
+<Ctrl+e> = exec setsid -f pinta "$imv_current_file" >/dev/null 2>&1; quit
+<Ctrl+Shift+E> = exec setsid -f krita "$imv_current_file" >/dev/null 2>&1; quit
+
 # Print the image
 <Ctrl+p> = exec lp "$imv_current_file"
 

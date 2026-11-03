@@ -18,7 +18,7 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 - `bashrc`, `zshrc` - Shell configs
 - `gitconfig`, `githelpers` - Git configuration
 - `ghostty_config`, `wezterm.lua` - Terminal emulator configs
-- `imv_config` - imv image viewer config (keybinds: copy, set wallpaper, trash)
+- `imv_config` - imv image viewer config (keybinds: copy, edit in Pinta/Krita, set wallpaper, trash)
 
 ## Conventions
 - Configs are symlinked to `~/.config/` or `~/` via Makefile
