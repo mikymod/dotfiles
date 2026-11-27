@@ -18,6 +18,7 @@ opt.termguicolors = true  -- Enable true color support
 opt.scrolloff = 8         -- Keep 8 lines visible above/below cursor
 opt.signcolumn = "yes"    -- Always show the sign column
 opt.wrap = false          -- Do not wrap long lines
+opt.colorcolumn = "120"   -- Show a vertical guide line at column 120
 
 -- == TABS & INDENTATION ==
 -- Set indentation to 4 spaces, as is common for C

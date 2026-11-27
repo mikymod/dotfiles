@@ -119,6 +119,9 @@ return {
                 { "<leader>ul", "<cmd>set relativenumber!<cr>",                                 desc = "Toggle Relative Numbers" },
                 { "<leader>us", "<cmd>set spell!<cr>",                                          desc = "Toggle Spelling" },
                 { "<leader>uc", "<cmd>set cursorline!<cr>",                                     desc = "Toggle Cursorline" },
+                { "<leader>uC", function()
+                    vim.wo.colorcolumn = vim.wo.colorcolumn == "" and "120" or ""
+                end, desc = "Toggle Color Column" },
 
                 -- Vim/Help
                 { "<leader>vh", "<cmd>Telescope help_tags<cr>",                                 desc = "Help Tags" },
