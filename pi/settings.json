@@ -1,12 +1,14 @@
 {
   "theme": "gruvbox-dark",
-  "defaultTools": ["+codemode"],
+  "defaultTools": [
+    "+codemode"
+  ],
   "quietStartup": false,
   "defaultProjectTrust": "always",
   "defaultProvider": "halogen",
   "defaultModel": "halogen-qwen3.8-flash-next",
   "defaultThinkingLevel": "max",
-  "hideThinkingBlock": true,
+  "hideThinkingBlock": false,
   "compaction": {
     "enabled": true,
     "reserveTokens": 16384,
@@ -32,10 +34,7 @@
   "enableInstallTelemetry": true,
   "collapseChangelog": true,
   "doubleEscapeAction": "tree",
-  "lastChangelogVersion": "1.1.0",
-  "packages": [
-    "git:github.com/badlogic/pi-telegram",
-    "npm:remote-pi"
-  ],
+  "lastChangelogVersion": "1.6.1",
+  "packages": [],
   "deviceId": "fad89eaa-6ea5-45aa-bd25-f62bc156ae28"
 }
