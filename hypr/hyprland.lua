@@ -57,6 +57,43 @@ hl.monitor({
     scale = "1",
 })
 
+-- "auto-center-up" needs another display to center against: on a machine with a
+-- single output it centers that output around the origin instead, placing it at
+-- negative coordinates (e.g. x=-960, y=-1080). Clients that assume the desktop
+-- starts at 0x0 - RustDesk's absolute pointer mapping, for one - then offset the
+-- cursor by exactly that amount. Pin a lone output back to the origin, and
+-- re-check when displays come and go.
+local function keep_single_output_at_origin()
+    local outputs = hl.get_monitors()
+    if #outputs ~= 1 then
+        return
+    end
+
+    local output = outputs[1]
+    if output.x == 0 and output.y == 0 then
+        return
+    end
+
+    hl.monitor({
+        output = output.name,
+        mode = "preferred",
+        position = "0x0",
+        scale = output.scale,
+    })
+end
+
+hl.on("hyprland.start", keep_single_output_at_origin)
+hl.on("config.reloaded", keep_single_output_at_origin)
+
+-- A hotplugged or unplugged display may get its rule applied after the event
+-- fires, so re-check once the layout has settled.
+hl.on("monitor.added", function()
+    hl.timer(keep_single_output_at_origin, { timeout = 500, type = "oneshot" })
+end)
+hl.on("monitor.removed", function()
+    hl.timer(keep_single_output_at_origin, { timeout = 500, type = "oneshot" })
+end)
+
 -- ==============================================================================
 -- AUTOSTART
 -- ==============================================================================
