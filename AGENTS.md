@@ -22,6 +22,7 @@ Personal dotfiles repository for Linux (Arch) and Windows. Contains configuratio
 
 ## Conventions
 - Configs are symlinked to `~/.config/` or `~/` via Makefile
+- Machine-local instructions never go in this repo: they belong in `~/.bashrc.local` (untracked, sourced by `bashrc`, `bash_profile` and `zshrc`). No hardcoded user paths (`/home/<user>`, `/Users/<user>`), per-machine PATH entries, tool installs, GPU/driver variables or autostarts in tracked files; when such code cannot be avoided, gate it behind `command -v` / path checks
 - Skills are not maintained here: they live in `~/work/mikymod/skills` (grouped per organisation) and have their own Makefile
 - Neovim uses Lua exclusively (no VimScript)
 - Follow existing formatting in each config file type (JSON, Lua, conf)

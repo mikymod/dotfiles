@@ -167,16 +167,13 @@ ssh_agent_add_all() {
 
 ssh_agent_add_all
 
-## [Completion]
-## Completion scripts setup. Remove the following line to uninstall
-[[ -f /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh ]] && . /Users/mrossi/.config/.dart-cli-completion/zsh-config.zsh || true
-## [/Completion]
-
-if [ -f ~/.functions ]; then
-    source ~/.functions
+if [ -f "$HOME/.functions" ]; then
+    source "$HOME/.functions"
 fi
 
-# Source local config (not tracked in git)
-if [ -f ~/.zshrc.local ]; then
-    source ~/.zshrc.local
+# Machine-local config, shared by bash and zsh (not tracked in git).
+# Keep here anything that is not valid on every machine: extra PATH entries,
+# per-machine tool installs, GPU/driver variables, private aliases.
+if [ -f "$HOME/.bashrc.local" ]; then
+    source "$HOME/.bashrc.local"
 fi

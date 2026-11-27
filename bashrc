@@ -135,8 +135,9 @@ if [ -f ~/.functions ]; then
     source ~/.functions
 fi
 
-# Source local config (not tracked in git)
-if [ -f ~/.bashrc.local ]; then
-    source ~/.bashrc.local
+# Machine-local config, shared by bash and zsh (not tracked in git).
+# Keep here anything that is not valid on every machine: extra PATH entries,
+# per-machine tool installs, GPU/driver variables, private aliases.
+if [ -f "$HOME/.bashrc.local" ]; then
+    source "$HOME/.bashrc.local"
 fi
-

@@ -21,7 +21,20 @@ make all
 
 ## Local Configuration
 
-For machine-specific or private configuration (e.g., work-related PATH exports), create `~/.bashrc.local`. This file is sourced by `bashrc` if it exists but is not tracked in git.
+Anything that is not valid on every machine belongs in `~/.bashrc.local` (untracked):
+
+- extra `PATH` entries and per-machine tool installs (`bun`, `~/.local/bin`, ROCm, ...)
+- GPU/driver variables and other host-specific exports
+- private aliases, credentials, autostarts
+
+The file is sourced by `bashrc`, by `bash_profile` (through `bashrc`) and by `zshrc`, so a single file serves both shells. The tracked rc files must stay portable: machine-specific code is only ever added there behind a `command -v` / path check, never hardcoded.
+
+```sh
+# ~/.bashrc.local
+add_to_path "$HOME/.bun/bin"                 # helpers from bashrc/zshrc are available
+add_to_path_suffix "$HOME/.local/bin"
+export HSA_OVERRIDE_GFX_VERSION=11.5.0      # this box only
+```
 
 ## NeoVim Bindings
 
